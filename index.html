@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cypen · Continuous attack surface testing</title>
+<meta name="description" content="Cypen finds everything you expose, safely tests the latest vulnerabilities, and gives you prioritised steps to remediate.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;700&family=Chivo+Mono:wght@400&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="cypen-assets/hero-pattern.webp">
+<style>
+/* Design fonts (from Figma). Roobert and Season Sans are TRIAL builds: buy web licences before this goes public. */
+@font-face{font-family:'Roobert';src:url(cypen-assets/fonts/Roobert-Regular.otf) format('opentype');font-weight:400;font-display:swap}
+@font-face{font-family:'Paper Mono';src:url(cypen-assets/fonts/PaperMono-Regular.otf) format('opentype');font-weight:400;font-display:swap}
+@font-face{font-family:'Paper Mono';src:url(cypen-assets/fonts/PaperMono-Medium.otf) format('opentype');font-weight:500;font-display:swap}
+@font-face{font-family:'Paper Mono';src:url(cypen-assets/fonts/PaperMono-Bold.otf) format('opentype');font-weight:700;font-display:swap}
+@font-face{font-family:'Season Sans';src:url(cypen-assets/fonts/SeasonSans-SemiBold.ttf) format('truetype');font-weight:600;font-display:swap}
+@font-face{font-family:'PP Mori';src:url(cypen-assets/fonts/PPMori-Regular.otf) format('opentype');font-weight:400;font-display:swap}
+/* Desktop layout mirrors Figma "Temp Landing page" (544:1441) on a 1440px stage that JS scales to the viewport.
+   Under 820px the stage drops to a stacked flow layout. */
+:root{--bg:#111;--ink:#f7f7f7;--mute:rgba(255,255,255,.6);--lilac:#dbabf2;--violet:#ad78d7;--purple:#8320c5;--orange:#9a5819;--green:#64ef8e;--brace:#44444d;
+ --display:'Roobert','PP Mori','Geist',system-ui,sans-serif;--mono:'Paper Mono','Geist Mono',ui-monospace,monospace;--code:'Chivo Mono',ui-monospace,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{background:var(--bg);color:var(--ink);font-family:Geist,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{display:block}
+.abs{position:absolute}
+h1,h2{font-family:var(--display);font-weight:400}
+
+.page{position:relative;width:1440px;height:3004px;margin:0 auto;zoom:var(--z,1)}
+
+/* ---------- nav ---------- */
+.navbar{position:fixed;top:0;left:0;right:0;z-index:50;background:#111;transition:box-shadow .3s}
+.navbar.scrolled{box-shadow:0 1px 0 rgba(255,255,255,.06)}
+.nav{width:1440px;height:61px;margin:0 auto;padding:0 40px;display:flex;justify-content:space-between;align-items:center;zoom:var(--z,1)}
+[id]{scroll-margin-top:61px}
+.logo{display:flex;align-items:center;gap:4.48px;font:400 26.25px/1.2 var(--display);letter-spacing:-.525px;color:#fff}
+.logo img{width:22.63px;height:22.45px}
+.links{display:flex;align-items:flex-end;gap:26px}
+.links a{font:400 14px/1.2 var(--mono);letter-spacing:-.28px;color:rgba(255,255,255,.8);transition:color .2s}
+.links a:hover{color:#fff}
+.links img{width:9.52px;height:10px;margin-bottom:0}
+
+/* ---------- hero ---------- */
+.hero{position:absolute;left:-.5px;top:61px;width:1441px;height:721px;background:#000;overflow:hidden;z-index:0}
+.hero img{position:absolute;left:0;top:0;width:1441px;height:721px}
+.hero-copy{position:absolute;left:40px;top:103px;width:1359px;display:flex;justify-content:space-between;align-items:flex-end;z-index:5}
+.hero-copy .l{display:flex;flex-direction:column;gap:24px}
+.hero h1,.hero-copy h1{font-size:72px;line-height:1.1;letter-spacing:-1.44px;width:652.72px;color:#f7f7f7}
+.hero-copy .sub{font:400 16px/24px Geist,sans-serif;color:var(--mute);width:588.38px}
+.hero-copy .r{width:554px;position:relative}
+
+/* ---------- form (button: Figma 473:1003) ---------- */
+.form{display:flex;gap:16px;align-items:flex-end;width:100%}
+.form input{flex:1;min-width:0;height:27px;background:transparent;border:0;border-bottom:1px solid #b1b1b1;color:#fff;font:400 14px/24px Geist,sans-serif;letter-spacing:-.28px;padding:0 0 2px 4px;outline:none;border-radius:0;transition:border-color .2s}
+.form input::placeholder{color:rgba(255,255,255,.6)}
+.form.m input{font-family:var(--mono)}.form.m input::placeholder{color:rgba(255,255,255,.3)}
+.form input:focus{border-color:var(--lilac)}
+.btn{--bh:24px;position:relative;flex:none;width:230px;height:var(--bh);border:0;border-radius:0;background:#b182c2;color:var(--purple);overflow:hidden;
+ font:600 32px/var(--bh) 'Season Sans','Geist',sans-serif;letter-spacing:-.64px;text-transform:uppercase;text-align:left;
+ padding:0 0 0 18.68px;cursor:pointer;white-space:nowrap;transition:background .2s,color .2s}
+.btn:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5.98px;background:#b1b1b1;transition:background .2s}
+.btn:hover{background:var(--purple);color:var(--lilac)}
+.btn:hover:before{background:#fff;animation:cur .7s steps(1,end) infinite}
+.btn:disabled{opacity:.6;cursor:default}
+@keyframes cur{50%{opacity:0}}
+.btn:focus-visible,.form input:focus-visible{outline:2px solid var(--lilac);outline-offset:4px}
+.note{position:absolute;left:0;top:calc(100% + 10px);font:400 13px/1.4 Geist,sans-serif;color:rgba(255,255,255,.45);min-height:18px}
+.note.ok{color:var(--green)}.note.err{color:#ff8a80}
+
+/* ---------- label creature (eyebrow) ---------- */
+.label{display:inline-flex;flex-direction:column;align-items:center;position:relative;margin-bottom:35px}
+.label .bug{width:26px;height:12px;margin-bottom:3px;color:#6a6a74;overflow:visible}
+.bug rect{fill:currentColor;transform-box:fill-box;transform-origin:center}
+.bug .e{fill:#fff;filter:drop-shadow(0 0 2px rgba(255,255,255,.9))}
+.label:before,.label:after{transform-origin:50% 0}
+.label.anim{opacity:0;translate:-160px 0}
+.label.anim.in{opacity:1;translate:0 0}
+.label.anim.crawl{animation:crawl 1.5s steps(12,end) both}
+.label.crawl .bug,.label.crawl span{animation:bob .25s steps(2,end) infinite}
+.label.crawl:before{animation:step .25s steps(2,end) infinite}
+.label.crawl:after{animation:step .25s steps(2,end) -.125s infinite}
+.label.in:not(.crawl){animation:shift 5.5s steps(1,end) 1.5s infinite}
+.label.in:not(.crawl) .bug,.label.in:not(.crawl) span{animation:sway 5.5s steps(1,end) 1.5s infinite}
+.label.in:not(.crawl):before{animation:idleL 5.5s steps(1,end) 1.5s infinite}
+.label.in:not(.crawl):after{animation:idleR 5.5s steps(1,end) 1.5s infinite}
+.label.in .bug .e{animation:blink var(--blink,3.7s) var(--bd,0s) infinite,look var(--look,7.5s) steps(1,end) var(--bd,0s) infinite}
+@keyframes crawl{from{translate:-160px 0;opacity:0}10%{opacity:1}to{translate:0 0;opacity:1}}
+@keyframes bob{50%{transform:translateY(-1.5px)}}
+@keyframes step{50%{transform:translate(3px,-3px) rotate(-14deg)}}
+@keyframes shift{0%,78%,100%{translate:0 0}82%,86%{translate:2px 0}90%,94%{translate:-1px 0}}
+@keyframes sway{0%,78%,86%,94%,100%{transform:none}82%,90%{transform:translateY(-1.5px)}}
+@keyframes idleL{0%,78%,84%,92%,100%{transform:none}80%{transform:translate(3px,-3px) rotate(-14deg)}88%{transform:translate(-3px,-3px) rotate(14deg)}}
+@keyframes idleR{0%,80%,86%,90%,96%,100%{transform:none}83%{transform:translate(3px,-3px) rotate(-14deg)}93%{transform:translate(-3px,-3px) rotate(14deg)}}
+@keyframes blink{0%,43%,49%,90%,93%,96%,100%{transform:none}46%,91.5%,94.5%{transform:scaleY(.1)}}
+@keyframes look{0%,55%,100%{translate:0 0}60%,70%{translate:1px 0}75%,88%{translate:-1px 0}}
+.label span{background:rgba(255,255,255,.1);font:500 14px/17px var(--mono);text-transform:uppercase;letter-spacing:1.82px;padding:2px 3.2px 2px 5px;color:rgba(255,255,255,.7)}
+.label:before,.label:after{position:absolute;bottom:-18px;font:400 15px/1 var(--mono);color:var(--brace)}
+.label:before{content:"{";left:-4px}.label:after{content:"}";right:-4px}
+
+/* heading scramble (kept from v1) */
+.sx .w{display:inline-block;white-space:nowrap}
+.rv .sx .ch{opacity:0;text-align:center;transition:color .55s ease,text-shadow .7s ease}
+.rv .sx.go .ch{display:inline-block}
+.rv .sx .ch.hot{opacity:1;color:var(--c1);-webkit-text-stroke:.05em var(--c2);paint-order:stroke fill;text-shadow:0 0 .32em var(--c2),0 0 .08em var(--c1);transition:none}
+.rv .sx .ch.warm{opacity:1;color:var(--c1);text-shadow:0 0 .28em var(--c2);transition:none}
+.rv .sx .ch.done{opacity:1;color:inherit;text-shadow:0 0 0 transparent}
+
+/* load reveals */
+.rv [data-rv]{opacity:0;transform:translateY(14px);transition:opacity .7s ease var(--d,0s),transform .8s cubic-bezier(.2,.7,.2,1) var(--d,0s)}
+.rv [data-rv=fade]{transform:none;transition:opacity 1.4s ease var(--d,0s)}
+.rv [data-rv=down]{transform:translateY(-10px)}
+.rv [data-rv].on{opacity:1;transform:none}
+
+/* ---------- alerts ---------- */
+.alert,.ib,.threat{background:#0e0e0e;border:.92px solid #353535;box-shadow:inset 0 .92px .92px rgba(255,255,255,.05);overflow:hidden}
+.alert{position:absolute;left:0;top:0;width:210.35px;height:calc(101.7px + 19.55px*var(--e,0));transform-origin:0 0;will-change:transform}
+.alert .edge{position:absolute;left:.28px;top:-7.33px;width:2.25px;height:141.14px;opacity:.7}
+.alert .hd{position:absolute;left:12.88px;top:8.93px;display:flex;gap:3px;align-items:center;font:400 13.6px/normal var(--mono);color:#deded8;white-space:nowrap}
+.alert .hd img{width:16.5px;height:16.5px}
+.alert .ds{position:absolute;left:calc(14.9px + 19.4px*var(--e,0));top:54.81px;font:400 11.36px/16px var(--mono);color:rgba(200,200,193,calc(.6 - .1*var(--e,0)));white-space:nowrap}
+.alert .dv{position:absolute;left:-3.6px;top:98.49px;width:212.87px;height:.96px;background:#353535}
+.alert .sv{position:absolute;left:12.88px;top:103.03px;font:400 11.25px/normal var(--mono);text-transform:uppercase;color:rgba(183,183,176,.4)}
+.alert .bd{position:absolute;top:99.07px;height:20.4px;padding:0 8px;display:flex;align-items:center;font:400 11.53px/1 var(--mono);text-transform:uppercase;border:1.035px solid;opacity:var(--e,0);transform:translateY(calc(6px - 6px*var(--e,0)))}
+.alert .bd.c{left:134.03px;background:#3b191c;border-color:#b3474f;color:#ff828a}
+.alert .bd.h{left:161.71px;background:#3b2a19;border-color:#a15a1d;color:#ed790e}
+.slot{position:absolute;pointer-events:none;visibility:hidden}
+.travel{position:absolute;left:0;top:0;width:0;height:0;z-index:3}
+.ib{position:absolute;width:34px;height:29px;opacity:.5}
+.ib img{position:absolute;left:9.1px;top:3.6px;width:14.44px;height:14.44px}
+.threat{position:absolute;width:207.66px;height:154.7px;border-width:1.14px}
+.threat .hd{position:absolute;left:8.6px;top:9px;display:flex;gap:11px;align-items:center;font:700 16.1px/normal var(--mono);color:#b80000}
+.threat .hd img{width:20.1px;height:20.1px}
+.threat .dv{position:absolute;left:.25px;top:36.4px;width:206.27px;height:1.39px;background:#353535}
+.threat ul{position:absolute;left:11.6px;top:67.3px;list-style:none;display:grid;gap:11.15px}
+.threat li{display:flex;gap:11.15px;align-items:center;font:400 12.54px/17px 'Roboto Mono',var(--mono);color:rgba(197,201,189,.6)}
+.threat li img{width:16.08px;height:16.08px}
+
+/* pop-in on scroll (problem section) */
+.js .pop{opacity:0;translate:0 16px;transition:opacity .9s cubic-bezier(.22,.61,.36,1) var(--pd,0s),translate 1.2s cubic-bezier(.16,1,.3,1) var(--pd,0s)}
+.js .pop.in{opacity:var(--op,1);translate:0 0}
+.alert{transform:var(--tf)}
+
+/* ---------- problem ---------- */
+.problem{position:absolute;left:39.5px;top:693px;width:1361px;height:718px;background:#111;overflow:hidden;z-index:2}
+.problem .tex{position:absolute;width:1515.87px;height:852.93px;opacity:.05;pointer-events:none}
+.problem .shade{position:absolute;left:271px;top:125.9px;width:851.8px;height:377.7px;background:#111;filter:blur(26.45px)}
+.problem .tile{position:absolute}
+.problem .txt{position:absolute;left:392.61px;top:163px;width:575.77px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.problem .label{margin-bottom:35px}
+.problem h2{font-size:52px;line-height:1.11;letter-spacing:-1.56px;width:761.53px;margin:0 -92.9px;color:#fff}
+.problem p{margin-top:20px;font:400 16px/24px Geist,sans-serif;letter-spacing:-.32px;color:var(--mute);width:446.37px}
+
+/* ---------- solution ---------- */
+.solution{position:absolute;left:-3px;top:1419px;width:1446px;height:801px;background:#111 url(cypen-assets/solution-paper.jpg) 0 0/100% 100%;overflow:hidden;z-index:1}
+.sol-head{position:absolute;left:43px;top:65px;width:1245px;display:flex;justify-content:space-between;align-items:flex-end}
+.sol-head .label{margin-bottom:38px}
+.sol-head h2{font-size:52px;line-height:1.11;letter-spacing:-1.56px;width:575.77px;color:#fff}
+.sol-head p{font:400 16px/24px Geist,sans-serif;letter-spacing:-.32px;color:var(--mute);width:441.13px}
+.ui{position:absolute;left:58px;top:323px;width:1280px;height:454px;scale:var(--uz,1);transform-origin:50% 45%}
+.ui>*{position:absolute;translate:0 0;transform:translate(calc(var(--px,0)*var(--d,0)*1px),calc(var(--py,0)*var(--d,0)*1px))}
+.js .ui>.drift{animation:drift var(--dur,13s) ease-in-out var(--dl,0s) infinite alternate}
+@keyframes drift{0%{translate:0 0}33%{translate:calc(var(--ax,4)*1px) calc(var(--ay,-3)*1px)}66%{translate:calc(var(--ax,4)*-.6px) calc(var(--ay,-3)*.8px)}100%{translate:calc(var(--ax,4)*.3px) calc(var(--ay,-3)*-1px)}}
+.ui .frame{left:298.79px;top:28.77px;width:663.08px;height:367.19px;border:1.017px solid rgba(217,217,217,.11)}
+.ui .dash{left:306px;top:37.77px;width:648.17px;height:349.98px}
+.ui .navsel{left:261.23px;top:99.83px;width:94.64px;height:32.14px}
+.ui .aud{left:896.48px;top:237.69px;width:113.71px;height:153.58px}
+.code{font:400 16.257px/1.168 var(--code);white-space:pre;pointer-events:none;color:transparent;-webkit-background-clip:text;background-clip:text}
+.ui .code{opacity:.4;background-image:linear-gradient(var(--ga,238.4deg),#151c15 31.5%,#386d33 58.2%,#040404 86.4%);filter:drop-shadow(0 0 4px rgba(205,172,239,.35))}
+
+/* ---------- CTA + footer ---------- */
+.cta{position:absolute;left:0;top:2216px;width:1440px;height:788px;background:#020202;overflow:hidden;z-index:4}
+.cta .plus{position:absolute;width:15.72px;height:15.72px}
+.cta .code{position:absolute;left:3px;top:329px;font-size:14.23px;opacity:.7;background-image:linear-gradient(239deg,#ad78d7 31.5%,#040404 86.4%);filter:drop-shadow(0 0 4px rgba(205,172,239,.35))}
+.panel{position:absolute;left:40px;top:85px;width:1244px;height:703px;background:#292929 url(cypen-assets/cta-paper.jpg) 0 0/100% 100%;overflow:hidden}
+.panel h2{position:absolute;left:28px;top:33px;width:500.7px;font-size:48px;line-height:1.11;letter-spacing:-1.44px;color:#fff}
+.panel .wm{position:absolute;left:-4px;top:457px;width:1159.02px;height:383.15px;pointer-events:none}
+.panel .fw{position:absolute;left:576px;top:98px;width:554px}
+.panel .row{position:absolute;left:28px;top:364px;width:1102px;display:flex;justify-content:space-between;align-items:center}
+.panel .row p{font:400 14px/1.2 'PP Mori',Geist,sans-serif;letter-spacing:-.28px;color:var(--mute)}
+.social{display:flex;gap:12px}.social a{display:block;width:24px;height:24px;opacity:.85;transition:opacity .2s}.social a:hover{opacity:1}.social img{width:24px;height:24px}
+.cta .pat,.cta canvas{position:absolute;left:0;top:0;width:1440px;height:788px;pointer-events:none}
+.cta .pat-l{position:absolute;left:0;top:378px;width:419px;height:410px;pointer-events:none}
+.js .cta .pat.anim{visibility:hidden}
+
+/* ---------- tablet + phone: stacked flow layout (below 1180px the 1440 stage would shrink type too far) ---------- */
+@media(max-width:1179px){
+ .page{width:auto;height:auto;zoom:1;padding-top:64px}
+ .nav{width:auto;height:64px;padding:0 32px;zoom:1}
+ [id]{scroll-margin-top:64px}
+ /* hero */
+ .hero-copy{position:relative;left:auto;top:auto;width:auto;max-width:880px;flex-direction:column;align-items:stretch;gap:40px;padding:72px 32px 0}
+ .hero-copy h1{font-size:clamp(40px,8vw,72px);letter-spacing:-.02em;width:auto;max-width:680px}
+ .hero-copy .sub{width:auto;max-width:560px;font-size:17px;line-height:26px}
+ .hero-copy .r{width:auto;max-width:554px;margin-bottom:56px}
+ .hero{position:relative;left:auto;top:auto;width:100%;height:auto;aspect-ratio:1441/470}
+ .hero img{top:auto;bottom:0;left:50%;width:150%;height:auto;translate:-50% 0}
+ /* problem */
+ .problem{position:relative;left:auto;top:auto;width:auto;height:auto;padding:104px 32px 96px;margin-top:-1px}
+ .problem .tex,.problem .shade,.problem .tile,.problem .ib{display:none}
+ .problem .txt{position:relative;left:auto;top:auto;width:auto;max-width:720px;margin:0 auto}
+ .problem h2{font-size:clamp(32px,6vw,52px);letter-spacing:-.03em;width:auto;margin:0}
+ .problem p{width:auto;max-width:460px}
+ .problem .mob-row{position:relative;display:flex;flex-wrap:wrap;gap:20px;justify-content:center;align-items:flex-start;margin-top:56px;text-align:left}
+ .problem .slot,.problem .threat{position:relative!important;left:auto!important;top:auto!important;flex:none}
+ /* solution */
+ .solution{position:relative;left:auto;top:auto;width:auto;height:auto;padding:104px 32px 0;background-size:cover;background-position:center}
+ .sol-head{position:relative;left:auto;top:auto;width:auto;flex-direction:column;align-items:flex-start;gap:20px}
+ .sol-head h2{font-size:clamp(32px,6vw,52px);letter-spacing:-.03em;width:auto;max-width:600px}
+ .sol-head p{width:auto;max-width:520px;font-size:17px;line-height:26px}
+ .ui-clip{position:relative;height:calc(420px*var(--mz,.6));margin:56px -32px 0;overflow:hidden}
+ .ui{left:0;top:calc(30px*var(--mz,.6));zoom:var(--mz,.6)}
+ /* cta + footer */
+ .cta{position:relative;left:auto;top:auto;width:auto;height:auto;padding:88px 32px 0}
+ .cta .plus,.cta .code,.cta .pat-l{display:none}
+ .panel{position:relative;left:auto;top:auto;width:auto;height:auto;padding:40px 36px 0;background-size:cover;display:flex;flex-direction:column;z-index:1}
+ .panel h2{position:relative;left:auto;top:auto;width:auto;max-width:520px;font-size:clamp(32px,5.6vw,48px);letter-spacing:-.03em}
+ .panel .fw{position:relative;left:auto;top:auto;width:auto;max-width:554px;margin:40px 0 72px}
+ .panel .row{position:relative;left:auto;top:auto;width:auto;flex-wrap:wrap;gap:16px;order:8}
+ .panel .wm{position:relative;left:auto;top:auto;order:9;width:calc(100% + 40px);height:auto;margin:48px 0 0 -8px}
+ .cta .pat{left:auto;right:-12%;top:auto;bottom:0;width:90%;height:auto;opacity:.55;z-index:2}
+}
+@media(max-width:639px){
+ .nav{padding:0 16px}
+ .links a:not(:last-child),.links img{display:none}
+ .hero-copy{padding:44px 16px 0;gap:32px}
+ .hero-copy .sub{font-size:16px;line-height:24px}
+ .hero-copy .r{margin-bottom:44px}
+ .form{flex-direction:column;align-items:stretch;gap:22px}.btn{align-self:flex-start}
+ .hero{aspect-ratio:1441/560}
+ .hero img{width:240%}
+ .problem{padding:80px 16px 72px}
+ .problem h2 br{display:none}
+ .problem .mob-row{flex-direction:column;align-items:center;gap:16px;margin-top:44px}
+ .solution{padding:80px 16px 0}
+ .ui-clip{margin:40px -16px 0}
+ .ui{left:-212px}
+ .cta{padding:72px 16px 0}
+ .panel{padding:28px 20px 0}
+ .panel .fw{margin:32px 0 56px}
+ .panel .wm{width:calc(100% + 28px);margin:40px 0 0 -6px}
+ .cta .pat{width:130%;right:-30%}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.js .ui>.drift{animation:none}.js .pop{transition:none!important}}
+</style></head><body>
+
+<!-- NAV (Figma 544:1442), fixed to the top -->
+<div class="navbar"><nav class="nav" aria-label="Main" data-rv="down">
+ <a class="logo" href="#top"><img src="cypen-assets/logo-mark.svg" alt="">Cypen</a>
+ <div class="links"><a href="#problem">PROBLEM</a><img src="cypen-assets/plus-orange.svg" alt=""><a href="#solution">SOLUTION</a><img src="cypen-assets/plus-orange.svg" alt=""><a href="#waitlist">JOIN WAITLIST</a></div>
+</nav></div>
+
+<div class="page" id="page">
+
+<!-- HERO (Figma 544:1454 pattern + 544:1479 copy) -->
+<div class="hero-copy" id="top">
+ <div class="l">
+  <h1>Continuous attack surface testing.</h1>
+  <p class="sub">Cypen finds everything you expose, safely tests the latest vulnerabilities, and gives you prioritised steps to remediate.</p>
+ </div>
+ <div class="r">
+  <form class="form" data-waitlist novalidate>
+   <input type="email" name="email" placeholder="Enter work email" aria-label="Work email" autocomplete="email" required>
+   <button class="btn" type="submit">Join waitlist</button>
+  </form>
+  <p class="note" role="status" data-default=""></p>
+ </div>
+</div>
+<header class="hero" aria-hidden="true">
+ <img src="cypen-assets/hero-pattern.webp" alt="" width="1441" height="721" fetchpriority="high">
+</header>
+
+<!-- PROBLEM (Figma 544:2422) -->
+<section class="problem" id="problem">
+ <img class="tex" src="cypen-assets/problem-tex.webp" alt="" style="left:-941.8px;top:-63.63px">
+ <img class="tex" src="cypen-assets/problem-tex.webp" alt="" style="left:986.3px;top:-29.6px;rotate:10.85deg">
+ <div class="shade"></div>
+ <img class="tile" src="cypen-assets/tile-pink.png" alt="" style="left:1242px;top:124px;width:116px;height:153px">
+ <img class="tile" src="cypen-assets/tile-orange.png" alt="" style="left:184.5px;top:178.52px;width:59.66px;height:59.66px">
+ <img class="tile" src="cypen-assets/tile-green.png" alt="" style="left:0;top:73px;width:213px;height:106px">
+ <img class="tile" src="cypen-assets/tile-grey.png" alt="" style="left:571px;top:578px;width:100px;height:140px">
+
+ <div class="ib pop" data-at=".08" style="left:446.5px;top:68px;--op:.5"><img src="cypen-assets/warn-sm.svg" alt=""></div>
+ <div class="ib pop" data-at=".24" style="left:916.5px;top:70px;--op:.5"><img src="cypen-assets/error-sm.svg" alt="" style="top:5.2px"></div>
+ <div class="ib pop" data-at=".46" style="left:279.5px;top:489px;--op:.5"><img src="cypen-assets/warn-sm.svg" alt=""></div>
+ <div class="ib pop" data-at=".56" style="left:1088.5px;top:573px;--op:.5"><img src="cypen-assets/warn-sm.svg" alt=""></div>
+
+ <div class="txt">
+  <div class="label"><svg></svg><span>Problem</span></div>
+  <h2>Annual pentests go <br>stale. Scanner alerts pile up.</h2>
+  <p>Teams deploy AI apps without security notice. New zero-days appear. Scanner alerts question exploitability.</p>
+  <div class="mob-row" hidden></div>
+ </div>
+
+ <!-- where the two travelling alerts start (their Figma slots in this frame) -->
+ <div class="slot" data-slot="ex-a" style="left:42.5px;top:105.95px;width:219.46px;height:106.15px"></div>
+ <div class="slot" data-slot="ph-a" style="left:1107.79px;top:197.63px;width:223.21px;height:106.75px"></div>
+
+ <div class="threat pop" data-at=".38" style="left:624px;top:508px">
+  <div class="hd"><img src="cypen-assets/threat.svg" alt="">Threat</div><div class="dv"></div>
+  <ul><li><img src="cypen-assets/x-red.svg" alt="">Patch failed</li><li><img src="cypen-assets/x-red.svg" alt="">Retested</li><li><img src="cypen-assets/x-red.svg" alt="">Risk found</li></ul>
+ </div>
+</section>
+
+<!-- SOLUTION (Figma 556:3226 + 556:3223) -->
+<section class="solution" id="solution">
+ <div class="sol-head">
+  <div>
+   <div class="label"><svg></svg><span>Solution</span></div>
+   <h2>Continuously test your exposure as it changes.</h2>
+  </div>
+  <p data-rv="up">Find internet-facing systems you didn’t know about. Test them for new zero-day exploits and get proof of what to fix first.</p>
+ </div>
+ <div class="ui-clip"><div class="ui" aria-hidden="true">
+  <div class="frame drift" style="--d:3;--dur:17s;--ax:3;--ay:2"></div>
+  <div class="code drift" data-code="full" style="left:5.13px;top:-70.54px;font-size:19.711px;--ga:238.39deg;--d:9;--dur:15s;--ax:-5;--ay:4;--dl:-3s"></div>
+  <div class="code drift" data-code="full" style="left:898.15px;top:137.66px;font-size:17.403px;--ga:239.25deg;--d:9;--dur:16s;--ax:5;--ay:-4;--dl:-7s"></div>
+  <svg class="drift" style="left:963.09px;top:28.75px;--d:12;--dur:11s;--ax:3;--ay:-4" width="5.41" height="20.31" viewBox="0 0 6.08 22.8"><circle cx="3.04" cy="3.04" r="3.04" fill="#1b1b1b"/><circle cx="3.04" cy="11.4" r="2.47" fill="none" stroke="#1b1b1b" stroke-width="1.14"/><circle cx="3.04" cy="19.77" r="2.47" fill="none" stroke="#1b1b1b" stroke-width="1.14"/></svg>
+  <svg class="drift" style="left:858.47px;top:398.96px;--d:12;--dur:12s;--ax:-4;--ay:3;--dl:-2s" width="27.76" height="5.41" viewBox="0 0 31.17 6.08"><circle cx="3.04" cy="3.04" r="3.04" fill="#1b1b1b"/><circle cx="11.4" cy="3.04" r="3.04" fill="#1b1b1b"/><circle cx="19.77" cy="3.04" r="2.47" fill="none" stroke="#1b1b1b" stroke-width="1.14"/><circle cx="28.13" cy="3.04" r="2.47" fill="none" stroke="#1b1b1b" stroke-width="1.14"/></svg>
+  <svg class="drift" style="left:289.71px;top:158.84px;--d:12;--dur:13s;--ax:3;--ay:4;--dl:-5s" width="5.41" height="27.76" viewBox="0 0 6.08 31.17"><circle cx="3.04" cy="3.04" r="3.04" fill="#1b1b1b"/><circle cx="3.04" cy="11.4" r="3.04" fill="#1b1b1b"/><circle cx="3.04" cy="19.77" r="2.47" fill="none" stroke="#1b1b1b" stroke-width="1.14"/><circle cx="3.04" cy="28.13" r="2.47" fill="none" stroke="#1b1b1b" stroke-width="1.14"/></svg>
+  <svg class="drift" style="left:225.63px;top:283.99px;--d:12;--dur:14s;--ax:-3;--ay:-3;--dl:-6s" width="27.76" height="5.41" viewBox="0 0 31.17 6.08"><circle cx="28.13" cy="3.04" r="3.04" fill="#1b1b1b"/><circle cx="19.77" cy="3.04" r="2.47" fill="none" stroke="#1b1b1b" stroke-width="1.14"/><circle cx="11.4" cy="3.04" r="2.47" fill="none" stroke="#1b1b1b" stroke-width="1.14"/><circle cx="3.04" cy="3.04" r="2.47" fill="none" stroke="#1b1b1b" stroke-width="1.14"/></svg>
+  <img class="dash drift" src="cypen-assets/dashboard.png" alt="" style="--d:5;--dur:19s;--ax:-3;--ay:-2">
+  <img class="navsel drift" src="cypen-assets/nav-selected.png" alt="" style="--d:14;--dur:10s;--ax:-6;--ay:3;--dl:-4s">
+  <img class="aud drift" src="cypen-assets/audience.svg" alt="" style="--d:16;--dur:12s;--ax:6;--ay:-4;--dl:-1s">
+  <div class="slot drift" data-slot="ex-b" style="left:64.86px;top:170.04px;width:187.33px;height:107.98px;--d:18;--dur:11s;--ax:-5;--ay:5;--dl:-2s"></div>
+  <div class="slot drift" data-slot="ph-b" style="left:979.54px;top:82.73px;width:187.33px;height:107.98px;--d:18;--dur:12s;--ax:5;--ay:-5;--dl:-6s"></div>
+ </div></div>
+</section>
+
+<!-- alerts that pop up in Problem and travel down into Solution (gain a severity row on arrival) -->
+<div class="travel" aria-hidden="true">
+ <div class="alert pop" data-at=".14" data-from="ex-a" data-to="ex-b" data-arc="-1">
+  <img class="edge" src="cypen-assets/alert-edge.png" alt="">
+  <div class="hd"><img src="cypen-assets/warn.svg" alt="">Data Exfiltration</div>
+  <div class="ds">Outbound spike<br>Transfer blocked</div>
+  <div class="dv"></div><div class="sv">Severity</div><div class="bd c">Critical</div>
+ </div>
+ <div class="alert pop" data-at=".3" data-from="ph-a" data-to="ph-b" data-arc="1">
+  <img class="edge" src="cypen-assets/alert-edge.png" alt="">
+  <div class="hd"><img src="cypen-assets/warn.svg" alt="">Phishing Attempt</div>
+  <div class="ds">Spoofed login URL<br>Email quarantined</div>
+  <div class="dv"></div><div class="sv">Severity</div><div class="bd h">High</div>
+ </div>
+</div>
+
+<!-- CTA + FOOTER (Figma 567:3282) -->
+<section class="cta" id="waitlist">
+ <img class="pat-l" src="cypen-assets/cta-pattern-left.webp" alt="" aria-hidden="true" width="419" height="410" loading="lazy">
+ <div class="code" data-code="full" aria-hidden="true"></div>
+ <img class="plus" src="cypen-assets/plus-violet.svg" alt="" style="left:76.55px;top:42.91px">
+ <img class="plus" src="cypen-assets/plus-violet.svg" alt="" style="left:64px;top:373px">
+ <img class="plus" src="cypen-assets/plus-violet.svg" alt="" style="left:1382px;top:245px">
+ <div class="panel">
+  <h2>Get proof of what attackers can exploit.</h2>
+  <img class="wm" src="cypen-assets/wordmark.svg" alt="" aria-hidden="true">
+  <div class="fw">
+   <form class="form m" data-waitlist novalidate>
+    <input type="email" name="email" placeholder="Enter work email" aria-label="Work email" autocomplete="email" required>
+    <button class="btn" type="submit">Join waitlist</button>
+   </form>
+   <p class="note" role="status" data-default=""></p>
+  </div>
+  <footer class="row">
+   <p>© 2026 Agentic Security Pty Ltd (ABN 42 701 054 506). All rights reserved.</p>
+   <div class="social"><a href="https://www.linkedin.com/company/cypen/" target="_blank" rel="noopener" aria-label="Cypen on LinkedIn"><img src="cypen-assets/linkedin.svg" alt=""></a><a href="https://x.com/cypen" target="_blank" rel="noopener" aria-label="Cypen on X"><img src="cypen-assets/x.svg" alt=""></a></div>
+  </footer>
+ </div>
+ <img class="pat" src="cypen-assets/cta-pattern.webp" alt="" aria-hidden="true" width="1440" height="788" loading="lazy">
+ <canvas aria-hidden="true"></canvas>
+</section>
+
+</div>
+
+<script>
+document.documentElement.classList.add('js');
+const REDUCE=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const page=document.getElementById('page');
+const isMob=()=>innerWidth<1180; // below this the page uses the stacked layout
+let Z=1;
+
+/* ---------- fit the 1440 stage to the viewport ---------- */
+function fit(){
+ const w=document.documentElement.clientWidth;
+ Z=isMob()?1:Math.min(w/1440,1.3334);
+ document.documentElement.style.setProperty('--z',Z);
+ if(isMob())document.documentElement.style.setProperty('--mz',(w<640?w/830:Math.min(w,1100)/1280).toFixed(4)); // phones: crop in on the dashboard
+ // stacked layout: the problem alerts sit in a row under the copy; stage layout: back at their Figma spots
+ const row=document.querySelector('.mob-row'),prob=document.querySelector('.problem');
+ if(row){const items=document.querySelectorAll('.problem [data-slot],.problem .threat');
+  row.hidden=!isMob();items.forEach(e=>(isMob()?row:prob).appendChild(e))}
+}
+fit();addEventListener('resize',fit);
+const navbar=document.querySelector('.navbar');
+const onScroll=()=>navbar.classList.toggle('scrolled',scrollY>4);onScroll();addEventListener('scroll',onScroll,{passive:true});
+
+/* ---------- code snippets ---------- */
+const CODE=`def detect_threat(network):
+    for node in network:
+        if node.risk_score > 0.8:
+            flag(node)
+            isolate(node)
+            return "THREAT CONTAINED"
+
+    return "SYSTEM SECURE"
+def analyze_attack_surface(assets):
+    findings = []
+
+    for asset in assets:
+        result = scan(asset)
+
+        if result.is_exploitable:
+            findings.append({
+                "target": asset.id,
+                "severity": result.severity,
+                "status": "DETECTED"
+            })
+
+    return prioritize(findings)`;
+document.querySelectorAll('[data-code]').forEach(e=>e.textContent=CODE);
+
+
+/* ---------- load reveals + heading scramble + label creatures (kept from v1) ---------- */
+(()=>{
+ if(REDUCE)return;
+ document.documentElement.classList.add('rv');
+ const set=(sel,type,base=0,step=0)=>document.querySelectorAll(sel).forEach((e,i)=>{e.dataset.rv=type;e.style.setProperty('--d',(base+i*step).toFixed(2)+'s')});
+ set('.nav','down',.1);set('.hero-copy .sub','up',.75);set('.hero-copy .r','up',.9);set('.hero img','fade',.2);
+ set('.problem p','up',.35);set('.sol-head p','up',.3);set('.panel .fw','up',.25);set('.panel .row','up',.35);set('.panel .wm','fade',.2);set('.cta .plus','fade',.3,.15);
+ const PAL=[['#dbabf2','#8320c5'],['#f0a35a','#ad78d7'],['#64ef8e','#8320c5'],['#ad78d7','#f0a35a']];
+ const GL='abcdefghknopqrstuvxyz0123456789|*<>[]{}/+',pick=()=>GL[Math.random()*GL.length|0];
+ const fontsReady=document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve();
+ const prep=h=>{const t=h.innerHTML.replace(/<br\s*\/?>/gi,' ¶ ').replace(/<[^>]+>/g,'').trim().split(/\s+/);
+  h.setAttribute('aria-label',t.filter(w=>w!=='¶').join(' '));h.classList.add('sx');let wi=0;
+  h.innerHTML=t.map(w=>w==='¶'?'<br>':(()=>{const p=PAL[wi++%4];return `<span class="w" aria-hidden="true" style="--c1:${p[0]};--c2:${p[1]}">${[...w].map(c=>`<span class="ch" data-c="${c}">${c}</span>`).join('')}</span>`})()).join(' ')};
+ const play=(h,wordStep,delay)=>fontsReady.then(()=>{
+  const fs=parseFloat(getComputedStyle(h).fontSize);
+  h.querySelectorAll('.ch').forEach(c=>c.style.width=(c.getBoundingClientRect().width/Z/fs).toFixed(4)+'em');
+  h.classList.add('go');
+  h.querySelectorAll('.w').forEach((w,wi)=>[...w.children].forEach((c,j)=>setTimeout(()=>{
+   c.textContent=pick();c.classList.add('hot');const id=setInterval(()=>c.textContent=pick(),60);
+   setTimeout(()=>{clearInterval(id);c.textContent=c.dataset.c;c.classList.replace('hot','warm');
+    setTimeout(()=>c.classList.replace('warm','done'),Math.random()<.3?450+Math.random()*550:110+Math.random()*170)},380+Math.random()*140);
+  },delay+wi*wordStep+j*28)));
+ });
+ const h1=document.querySelector('.hero-copy h1');prep(h1);play(h1,240,250);
+ const hs=[...document.querySelectorAll('.problem h2,.sol-head h2,.panel h2')];hs.forEach(prep);
+ const hio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){hio.unobserve(e.target);play(e.target,110,100)}}),{threshold:.6});
+ hs.forEach(h=>hio.observe(h));
+ const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target)}}),{threshold:.12});
+ document.querySelectorAll('[data-rv]').forEach(e=>io.observe(e));
+})();
+
+(()=>{
+ const BASE=[0,4,8,12,16,20,24].map(x=>[x,8]);
+ const FACES=[[[12,0],[8,4,'e'],[12,4],[16,4,'e']],[[4,0],[20,0],[8,4,'e'],[12,4],[16,4,'e']],[[12,0],[4,4,'e'],[8,4],[12,4],[16,4],[20,4,'e']],
+  [[8,0],[12,0],[16,0],[8,4,'e'],[16,4,'e']],[[8,0,'e'],[16,0,'e'],[4,4],[8,4],[12,4],[16,4],[20,4]],[[0,4],[24,4],[8,4,'e'],[16,4,'e'],[12,0]]].sort(()=>Math.random()-.5);
+ const rnd=(a,b)=>(a+Math.random()*(b-a)).toFixed(2)+'s';
+ const G='#%&$@*+=<>/[]{}01';
+ const decode=el=>{const t=el.dataset.t;let f=0;const id=setInterval(()=>{const done=Math.floor(++f/3);
+  el.textContent=[...t].map((c,i)=>i<done||c===' '?c:G[Math.random()*G.length|0]).join('');if(done>=t.length){el.textContent=t;clearInterval(id)}},40)};
+ const io=REDUCE?null:new IntersectionObserver(es=>es.forEach(e=>{const l=e.target.previousElementSibling;if(!e.isIntersecting){if(e.boundingClientRect.bottom<0){io.unobserve(e.target);l.classList.add('in')}return}io.unobserve(e.target);
+  l.classList.add('in','crawl');setTimeout(()=>l.classList.remove('crawl'),1500);setTimeout(()=>decode(l.querySelector('span')),1350)}),{threshold:.6});
+ document.querySelectorAll('.label').forEach((l,n)=>{
+  const P=FACES[n%FACES.length].concat(BASE);
+  l.style.setProperty('--blink',rnd(2.8,5.2));l.style.setProperty('--bd',rnd(-4,0));l.style.setProperty('--look',rnd(5.5,10));
+  l.querySelector('svg').outerHTML=`<svg class="bug" viewBox="0 -2 26 12" aria-hidden="true">${P.map(([x,y,k],i)=>`<rect class="${k||''}" x="${x}" y="${y}" width="2" height="2" style="--i:${i}"/>`).join('')}</svg>`;
+  const sp=l.querySelector('span');sp.dataset.t=sp.textContent;
+  if(io&&l.nextElementSibling){l.classList.add('anim');io.observe(l.nextElementSibling)}
+ });
+})();
+
+/* ---------- waitlist form (HubSpot) ----------
+   Set PORTAL_ID and FORM_GUID. Public submissions go to
+   https://api.hsforms.com/submissions/v3/integration/submit/{portalId}/{formGuid} (no secret needed).
+   A private-app token must stay on a server route, never in this file. */
+const HUBSPOT={portalId:'',formGuid:''};
+document.querySelectorAll('[data-waitlist]').forEach(f=>{
+ const note=f.nextElementSibling,input=f.email,btn=f.querySelector('button');
+ const say=(t,c)=>{note.textContent=t;note.className='note'+(c?' '+c:'')};
+ f.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const v=input.value.trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)){say('Enter a valid work email.','err');input.focus();return}
+  btn.disabled=true;
+  try{
+   if(HUBSPOT.portalId){
+    const r=await fetch(`https://api.hsforms.com/submissions/v3/integration/submit/${HUBSPOT.portalId}/${HUBSPOT.formGuid}`,{method:'POST',headers:{'Content-Type':'application/json'},
+     body:JSON.stringify({fields:[{name:'email',value:v}],context:{pageUri:location.href,pageName:document.title}})});
+    if(!r.ok)throw new Error(r.status);
+   }else console.warn('Waitlist form is not connected to HubSpot yet; nothing was sent.');
+   say('You’re on the waitlist. We’ll email you when Cypen launches.','ok');f.reset();
+  }catch(err){say('Something went wrong. Please try again.','err')}
+  btn.disabled=false;
+ });
+ input.addEventListener('input',()=>{if(note.classList.contains('err'))say('','')});
+});
+
+/* ---------- scroll-driven: problem pop-ins, travelling alerts, solution UI zoom + parallax ---------- */
+(()=>{
+ const prob=document.querySelector('.problem'),sol=document.querySelector('.solution'),ui=document.querySelector('.ui');
+ const pops=[...document.querySelectorAll('.pop')];
+ const slot=k=>document.querySelector(`[data-slot="${k}"]`);
+ const movers=[...document.querySelectorAll('.travel .alert')].map(el=>({el,a:slot(el.dataset.from),b:slot(el.dataset.to),arc:+el.dataset.arc,t:0}));
+ const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2,smooth=(a,b,v)=>{const t=clamp((v-a)/(b-a));return t*t*(3-2*t)};
+ let px=0,py=0,tx=0,ty=0;
+ sol.addEventListener('pointermove',e=>{const r=sol.getBoundingClientRect();tx=((e.clientX-r.left)/r.width-.5)*2;ty=((e.clientY-r.top)/r.height-.5)*2});
+ sol.addEventListener('pointerleave',()=>{tx=ty=0});
+ // stage coordinates of an element (undoes the page zoom)
+ const pr=()=>page.getBoundingClientRect();
+ const pos=(el,P)=>{const r=el.getBoundingClientRect();return{x:(r.left-P.left)/Z,y:(r.top-P.top)/Z,w:r.width/Z}};
+ let first=true;
+ // 1. problem: alerts fade up one after another, once, when the section comes into view
+ pops.sort((a,b)=>a.dataset.at-b.dataset.at).forEach((e,i)=>e.style.setProperty('--pd',(i*.22).toFixed(2)+'s'));
+ if(REDUCE)pops.forEach(e=>e.classList.add('in'));
+ else{const pio=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){pops.forEach(e=>e.classList.add('in'));pio.disconnect()}},{threshold:.3});pio.observe(prob)}
+ function frame(){
+  const vh=innerHeight,P=pr(),r=prob.getBoundingClientRect();
+  // 2. alerts travel from their Problem slot to their Solution slot
+  const s=sol.getBoundingClientRect();
+  let target=isMob()?0:clamp(((vh*.5)-(r.top+r.height*.42))/((s.top+s.height*.6)-(r.top+r.height*.42)));
+  if(REDUCE)target=target>.5?1:0; // no travel animation: alerts just sit in whichever section is in view
+  movers.forEach(m=>{
+   m.t+=first||REDUCE?(target-m.t):(target-m.t)*.09;
+   const t=ease(clamp(m.t)),A=pos(m.a,P),B=pos(m.b,P);
+   const sc=(A.w+(B.w-A.w)*t)/210.35,arc=Math.sin(Math.PI*t);
+   const x=A.x+(B.x-A.x)*t+m.arc*arc*60,y=A.y+(B.y-A.y)*t;
+   m.el.style.setProperty('--tf',`translate(${x.toFixed(2)}px,${y.toFixed(2)}px) scale(${sc.toFixed(4)}) rotate(${(m.arc*arc*2.2).toFixed(2)}deg)`);
+   m.el.style.setProperty('--e',smooth(.72,.98,m.t).toFixed(3));
+   m.el.style.boxShadow=arc>.02?`inset 0 .92px .92px rgba(255,255,255,.05),0 ${(24*arc).toFixed(1)}px ${(48*arc).toFixed(1)}px rgba(0,0,0,${(.55*arc).toFixed(2)})`:'';
+   if(m.t>.02){m.el.classList.add('in');m.el.style.setProperty('--pd','0s')}
+  });
+  // 3. solution UI: very slow zoom across the section + slight pointer parallax
+  const q=clamp((vh-s.top)/(vh+s.height));
+  ui.style.setProperty('--uz',REDUCE?1:(.985+q*.03).toFixed(4));
+  px+=(tx-px)*.06;py+=(ty-py)*.06;
+  ui.style.setProperty('--px',(-px*.6).toFixed(3));ui.style.setProperty('--py',(-py*.6).toFixed(3));
+  first=false;requestAnimationFrame(frame);
+ }
+ requestAnimationFrame(frame);
+})();
+
+const MAPS={"cta":{"c":8,"cols":180,"rows":99,"t":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAXEQ8MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIBsXEQwH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","on":1429}};
+
+/* ---------- CTA: the swarm grows in from the right ---------- */
+(()=>{
+ const cta=document.querySelector('.cta'),img=cta.querySelector('.pat'),cv=cta.querySelector('canvas');
+ if(REDUCE||isMob()){cv.remove();return}
+ img.classList.add('anim');img.loading='eager';
+ const M=MAPS.cta,bin=atob(M.t),T=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)T[i]=bin.charCodeAt(i);
+ const idx=[];T.forEach((v,i)=>v&&idx.push(i));idx.sort((a,b)=>T[a]-T[b]);
+ const base=cv.getContext('2d'),front=document.createElement('canvas'),fx=front.getContext('2d');
+ front.style.cssText='position:absolute;left:0;top:0;width:1440px;height:788px;pointer-events:none;filter:drop-shadow(0 0 4px rgba(240,163,90,.7))';cta.appendChild(front);
+ let k=1,done=false,started=false,ptr=0;
+ const DUR=3400,FL=.07;
+ function size(){const dpr=Math.min(devicePixelRatio||1,2),w=Math.round(1440*Z*dpr),h=Math.round(788*Z*dpr);
+  for(const c of[cv,front]){c.width=w;c.height=h}k=w/1440;ptr=0;base.setTransform(k,0,0,k,0,0);fx.setTransform(k,0,0,k,0,0)}
+ const put=(g,i,a,col)=>{const c=i%M.cols,r=(i/M.cols)|0,C=M.c,s=img.naturalWidth/1440;
+  g.globalCompositeOperation='source-over';g.globalAlpha=a;g.drawImage(img,c*C*s,r*C*s,C*s,C*s,c*C,r*C,C,C);
+  if(col){g.globalCompositeOperation='source-atop';g.globalAlpha=1;g.fillStyle=col;g.fillRect(c*C,r*C,C,C)}};
+ let t0=0;
+ function loop(now){
+  const t=Math.min(1.08,(now-t0)/DUR);
+  // settle every cell whose time has passed onto the base layer
+  while(ptr<idx.length&&(T[idx[ptr]]-1)/254*.92+FL<=t){put(base,idx[ptr],1);ptr++}
+  fx.clearRect(0,0,1440,788);
+  for(let j=ptr;j<idx.length;j++){const ct=(T[idx[j]]-1)/254*.92;if(ct>t)break;const age=(t-ct)/FL;put(fx,idx[j],.35+age*.65,age<.5?'#f6d2ff':'#f0a35a')}
+  if(t<1.08)requestAnimationFrame(loop);else{img.classList.remove('anim');cv.remove();front.remove();done=true}
+ }
+ const go=()=>{size();addEventListener('resize',()=>{if(!done&&started){size()}});
+  const io=new IntersectionObserver(es=>{if(es[0].isIntersecting&&!started){started=true;io.disconnect();t0=performance.now();requestAnimationFrame(loop)}},{threshold:.3});io.observe(cta)};
+ img.complete&&img.naturalWidth?go():img.addEventListener('load',go,{once:true});
+})();
+</script>
+</body></html>
