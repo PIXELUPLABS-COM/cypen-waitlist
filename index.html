@@ -2,6 +2,21 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cypen · Continuous attack surface testing</title>
 <meta name="description" content="Cypen finds everything you expose, safely tests the latest vulnerabilities, and gives you prioritised steps to remediate.">
+<!-- Social share card. og:image and twitter:image must be full URLs once the site has a domain,
+     e.g. https://YOUR-DOMAIN/cypen-assets/og-image.png. Most platforms ignore a relative path. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cypen">
+<meta property="og:title" content="Cypen · Continuous attack surface testing">
+<meta property="og:description" content="Cypen finds everything you expose, safely tests the latest vulnerabilities, and gives you prioritised steps to remediate.">
+<meta property="og:image" content="cypen-assets/og-image.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Cypen. Continuous attack surface testing.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cypen · Continuous attack surface testing">
+<meta name="twitter:description" content="Cypen finds everything you expose, safely tests the latest vulnerabilities, and gives you prioritised steps to remediate.">
+<meta name="twitter:image" content="cypen-assets/og-image.png">
 <link rel="icon" type="image/svg+xml" href="cypen-assets/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;700&family=Chivo+Mono:wght@400&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
@@ -36,7 +51,7 @@ h1,h2{font-family:var(--display);font-weight:400}
 .logo{display:flex;align-items:center;gap:4.48px;font:400 26.25px/1.2 var(--display);letter-spacing:-.525px;color:#fff}
 .logo img{width:22.63px;height:22.45px}
 .links{display:flex;align-items:flex-end;gap:26px}
-.links a{font:400 14px/1.2 var(--mono);letter-spacing:-.28px;color:rgba(255,255,255,.8);transition:color .2s}
+.links a{font:400 12px/1.2 var(--mono);letter-spacing:-.24px;color:rgba(255,255,255,.8);transition:color .2s}
 .links a:hover{color:#fff}
 .links img{width:9.52px;height:10px;margin-bottom:0}
 
@@ -189,7 +204,13 @@ h1,h2{font-family:var(--display);font-weight:400}
 .panel .wm{position:absolute;left:-4px;top:457px;width:1159.02px;height:383.15px;pointer-events:none}
 .panel .fw{position:absolute;left:576px;top:98px;width:554px}
 .panel .row{position:absolute;left:28px;top:364px;width:1102px;display:flex;justify-content:space-between;align-items:center}
-.panel .row p{font:400 14px/1.2 'PP Mori',Geist,sans-serif;letter-spacing:-.28px;color:var(--mute)}
+.panel .row p{font:400 14px/1.2 'PP Mori',Geist,sans-serif;letter-spacing:-.28px;color:var(--mute);white-space:nowrap}
+.panel .legal{display:flex;align-items:center;gap:81px}
+.panel .made{display:flex;align-items:center;gap:4px}
+/* underline drawn as a background line: the scramble splits the text into inline blocks, which text-decoration does not cross */
+.panel .made a{color:rgba(255,255,255,.8);padding:3px 0;background:linear-gradient(currentColor,currentColor) 0 100%/100% 1px no-repeat;background-size:0 1px}
+.panel .made a:hover,.panel .made a:focus-visible{background-size:100% 1px}
+.panel .made img{flex:none}
 .social{display:flex;gap:12px}.social a{display:block;width:24px;height:24px;opacity:.85;transition:opacity .2s}.social a:hover{opacity:1}.social img{width:24px;height:24px}
 .cta .pat{position:absolute;left:0;top:0;width:1440px;height:788px;pointer-events:none}
 .cta .pat-l{position:absolute;left:0;top:378px;width:419px;height:410px;pointer-events:none}
@@ -209,7 +230,13 @@ h1,h2{font-family:var(--display);font-weight:400}
  .hero img{top:auto;bottom:0;left:50%;width:150%;height:auto;translate:-50% 0}
  /* problem */
  .problem{position:relative;left:auto;top:auto;width:auto;height:auto;padding:104px 32px 96px;margin-top:-1px}
- .problem .tex,.problem .shade,.problem .tile,.problem .ib{display:none}
+ /* background: the same faint texture and corner tiles as desktop, re-placed for the stacked layout */
+ .problem .ib,.problem .tex~.tex,.problem .tile[src*=grey]{display:none}
+ .problem .tex{left:50%!important;top:0!important;width:auto;height:100%;min-width:100%;object-fit:cover;translate:-50% 0;opacity:.07}
+ .problem .shade{left:6%;right:6%;top:96px;width:auto;height:330px}
+ .problem .tile[src*=green]{left:0!important;top:22px!important;width:128px!important;height:64px!important}
+ .problem .tile[src*=orange]{left:110px!important;top:70px!important;width:36px!important;height:36px!important}
+ .problem .tile[src*=pink]{left:auto!important;right:0;top:18px!important;width:70px!important;height:92px!important}
  .problem .txt{position:relative;left:auto;top:auto;width:auto;max-width:720px;margin:0 auto}
  .problem h2{font-size:clamp(32px,6vw,52px);letter-spacing:-.03em;width:auto;margin:0}
  .problem p{width:auto;max-width:460px}
@@ -222,6 +249,14 @@ h1,h2{font-family:var(--display);font-weight:400}
  .sol-head p{width:auto;max-width:520px;font-size:17px;line-height:26px}
  .ui-clip{position:relative;height:calc(420px*var(--mz,.6));margin:56px -32px 0;overflow:hidden}
  .ui{left:0;top:calc(30px*var(--mz,.6));zoom:var(--mz,.6)}
+ /* small screens: the illustration is shown smaller, so it is made stronger than the desktop design to stay readable */
+ .ui .frame{border-color:rgba(217,217,217,.24)}
+ .ui .dash{background:rgba(16,16,15,.45);border-color:rgba(125,125,121,.45)}
+ .ui .dash img{filter:brightness(1.7)}
+ .ui .dash .act{border-color:#474747}.ui .dash .act i{opacity:.55}
+ .ui .dash .chart{opacity:1;border-color:#3d3d3d}
+ .ui .code{opacity:.7}
+ .ui>svg{filter:brightness(2)}
  /* cta + footer */
  .cta{position:relative;left:auto;top:auto;width:auto;height:auto;padding:88px 32px 0}
  .cta .plus,.cta .code,.cta .pat-l{display:none}
@@ -229,6 +264,7 @@ h1,h2{font-family:var(--display);font-weight:400}
  .panel h2{position:relative;left:auto;top:auto;width:auto;max-width:520px;font-size:clamp(32px,5.6vw,48px);letter-spacing:-.03em}
  .panel .fw{position:relative;left:auto;top:auto;width:auto;max-width:554px;margin:40px 0 72px}
  .panel .row{position:relative;left:auto;top:auto;width:auto;flex-wrap:wrap;gap:16px;order:8}
+ .panel .legal{flex-wrap:wrap;gap:10px 40px}.panel .row p{white-space:normal}.panel .made{white-space:nowrap}
  .panel .wm{position:relative;left:auto;top:auto;order:9;width:calc(100% + 40px);height:auto;margin:48px 0 0 -8px}
  .cta .pat{left:auto;right:-12%;top:auto;bottom:0;width:90%;height:auto;opacity:.55;z-index:2}
 }
@@ -241,7 +277,10 @@ h1,h2{font-family:var(--display);font-weight:400}
  .form{flex-direction:column;align-items:stretch;gap:22px}.btn{align-self:flex-start}
  .hero{aspect-ratio:1441/560}
  .hero img{width:240%}
- .problem{padding:80px 16px 72px}
+ .problem{padding:112px 16px 72px}
+ .problem .tile[src*=green]{top:14px!important;width:96px!important;height:48px!important}
+ .problem .tile[src*=orange]{left:82px!important;top:50px!important;width:28px!important;height:28px!important}
+ .problem .tile[src*=pink]{top:12px!important;width:52px!important;height:68px!important}
  .problem h2 br{display:none}
  .problem .mob-row{flex-direction:column;align-items:center;gap:16px;margin-top:44px}
  .solution{padding:80px 16px 0}
@@ -393,7 +432,10 @@ h1,h2{font-family:var(--display);font-weight:400}
    <p class="note" role="status" data-default=""></p>
   </div>
   <footer class="row">
-   <p>© 2026 Agentic Security Pty Ltd (ABN 42 701 054 506). All rights reserved.</p>
+   <div class="legal">
+    <p>© 2026 Agentic Security Pty Ltd (ABN 42 701 054 506). All rights reserved.</p>
+    <p class="made">Made with <img src="cypen-assets/made-heart.svg" alt="love" width="14.132" height="13.405"> by <a href="https://www.pixeluplabs.com/" target="_blank" rel="noopener">PIXELUPLABS</a> <img src="cypen-assets/pixelup-mark.svg" alt="" width="13.429" height="11.63"></p>
+   </div>
    <div class="social"><a href="https://www.linkedin.com/company/cypen/" target="_blank" rel="noopener" aria-label="Cypen on LinkedIn"><img src="cypen-assets/linkedin.svg" alt=""></a><a href="https://x.com/cypen" target="_blank" rel="noopener" aria-label="Cypen on X"><img src="cypen-assets/x.svg" alt=""></a></div>
   </footer>
  </div>
@@ -479,12 +521,23 @@ document.querySelectorAll('[data-code]').forEach(e=>e.textContent=CODE);
   const ws=[...h.querySelectorAll('.w')],idx=[];let top=null,n=0;
   ws.forEach(w=>{const t=w.offsetTop;if(perLine&&top!==null&&t>top+2)n=0;top=t;idx.push(n++)});
   ws.forEach((w,k)=>{const wi=idx[k];[...w.children].forEach((c,j)=>setTimeout(()=>{
-   c.textContent=pick();c.classList.add('hot');const id=setInterval(()=>c.textContent=pick(),60);
+   c.textContent=pick();c.classList.remove('warm','done');c.classList.add('hot');const id=setInterval(()=>c.textContent=pick(),60);
    setTimeout(()=>{clearInterval(id);c.textContent=c.dataset.c;c.classList.replace('hot','warm');
     setTimeout(()=>c.classList.replace('warm','done'),Math.random()<.3?450+Math.random()*550:110+Math.random()*170)},380+Math.random()*140);
   },delay+wi*wordStep+j*28))});
  });
  const h1=document.querySelector('.hero-copy h1');prep(h1);play(h1,240,250,true);
+ // nav links: the same scramble, once on load (one link after another) and again each time a link is hovered
+ document.querySelectorAll('.nav .links a').forEach((a,i)=>{
+  prep(a);play(a,90,450+i*160);
+  let busy=true;setTimeout(()=>busy=false,1600+i*160);
+  a.addEventListener('pointerenter',()=>{if(busy)return;busy=true;play(a,70,0);setTimeout(()=>busy=false,1000)});
+ });
+ // footer credit link: the same scramble, the first time it scrolls into view and again on hover
+ const cred=document.querySelector('.panel .made a');
+ if(cred){prep(cred);let busy=true;const run=()=>{busy=true;play(cred,70,0);setTimeout(()=>busy=false,1000)};
+  const cio=new IntersectionObserver(es=>{if(es[0].isIntersecting){cio.disconnect();run()}},{threshold:.6});cio.observe(cred);
+  cred.addEventListener('pointerenter',()=>{if(!busy)run()})}
  const hs=[...document.querySelectorAll('.problem h2,.sol-head h2,.panel h2')];hs.forEach(prep);
  const hio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){hio.unobserve(e.target);play(e.target,110,100)}}),{threshold:.6});
  hs.forEach(h=>hio.observe(h));
