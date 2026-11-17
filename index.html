@@ -2,6 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cypen · Continuous attack surface testing</title>
 <meta name="description" content="Cypen finds everything you expose, safely tests the latest vulnerabilities, and gives you prioritised steps to remediate.">
+<link rel="icon" type="image/svg+xml" href="cypen-assets/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;700&family=Chivo+Mono:wght@400&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="cypen-assets/hero-pattern.webp">
@@ -15,7 +16,7 @@
 @font-face{font-family:'PP Mori';src:url(cypen-assets/fonts/PPMori-Regular.otf) format('opentype');font-weight:400;font-display:swap}
 /* Desktop layout mirrors Figma "Temp Landing page" (544:1441) on a 1440px stage that JS scales to the viewport.
    Under 820px the stage drops to a stacked flow layout. */
-:root{--bg:#111;--ink:#f7f7f7;--mute:rgba(255,255,255,.6);--lilac:#dbabf2;--violet:#ad78d7;--purple:#8320c5;--orange:#9a5819;--green:#64ef8e;--brace:#44444d;
+:root{--hx:0px;--hs:1;--bg:#111;--ink:#f7f7f7;--mute:rgba(255,255,255,.6);--lilac:#dbabf2;--violet:#ad78d7;--purple:#8320c5;--orange:#9a5819;--green:#64ef8e;--brace:#44444d;
  --display:'Roobert','PP Mori','Geist',system-ui,sans-serif;--mono:'Paper Mono','Geist Mono',ui-monospace,monospace;--code:'Chivo Mono',ui-monospace,monospace}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;overflow-x:hidden}
@@ -25,7 +26,7 @@ img{display:block}
 .abs{position:absolute}
 h1,h2{font-family:var(--display);font-weight:400}
 
-.page{position:relative;width:1440px;height:3004px;margin:0 auto;zoom:var(--z,1)}
+.page{position:relative;width:1440px;height:calc(3004px + var(--hx));margin:0 auto;zoom:var(--z,1)}
 
 /* ---------- nav ---------- */
 .navbar{position:fixed;top:0;left:0;right:0;z-index:50;background:#111;transition:box-shadow .3s}
@@ -40,8 +41,10 @@ h1,h2{font-family:var(--display);font-weight:400}
 .links img{width:9.52px;height:10px;margin-bottom:0}
 
 /* ---------- hero ---------- */
-.hero{position:absolute;left:-.5px;top:61px;width:1441px;height:721px;background:#000;overflow:hidden;z-index:0}
-.hero img{position:absolute;left:0;top:0;width:1441px;height:721px}
+/* The hero fills the first screen. fit() sets --hx, the stage height added (or removed) so the Problem section starts at the bottom
+   of the window, and --hs, which scales the pattern to cover the taller hero. Everything below shifts by --hx. */
+.hero{position:absolute;left:-.5px;top:61px;width:1441px;height:calc(721px*var(--hs));background:#000;overflow:hidden;z-index:0}
+.hero img{position:absolute;left:calc(720.5px - 720.5px*var(--hs));top:0;width:calc(1441px*var(--hs));height:calc(721px*var(--hs))}
 .hero-copy{position:absolute;left:40px;top:103px;width:1359px;display:flex;justify-content:space-between;align-items:flex-end;z-index:5}
 .hero-copy .l{display:flex;flex-direction:column;gap:24px}
 .hero h1,.hero-copy h1{font-size:72px;line-height:1.1;letter-spacing:-1.44px;width:652.72px;color:#f7f7f7}
@@ -135,12 +138,15 @@ h1,h2{font-family:var(--display);font-weight:400}
 .threat li img{width:16.08px;height:16.08px}
 
 /* pop-in on scroll (problem section) */
-.js .pop{opacity:0;translate:0 16px;transition:opacity .9s cubic-bezier(.22,.61,.36,1) var(--pd,0s),translate 1.2s cubic-bezier(.16,1,.3,1) var(--pd,0s)}
-.js .pop.in{opacity:var(--op,1);translate:0 0}
+/* each card drifts in from its own side (data-dir: l, r, b), slightly small and soft, then settles */
+.js .pop{opacity:0;translate:var(--fx,0px) var(--fy,18px);scale:.94;filter:blur(6px);
+ transition:opacity .8s cubic-bezier(.22,.61,.36,1) var(--pd,0s),translate 1.15s cubic-bezier(.16,1,.3,1) var(--pd,0s),scale 1.15s cubic-bezier(.16,1,.3,1) var(--pd,0s),filter .8s ease var(--pd,0s)}
+.js .pop[data-dir=l]{--fx:-44px;--fy:10px}.js .pop[data-dir=r]{--fx:44px;--fy:10px}.js .pop[data-dir=b]{--fy:44px}
+.js .pop.in{opacity:var(--op,1);translate:0 0;scale:1;filter:none}
 .alert{transform:var(--tf)}
 
 /* ---------- problem ---------- */
-.problem{position:absolute;left:39.5px;top:693px;width:1361px;height:718px;background:#111;overflow:hidden;z-index:2}
+.problem{position:absolute;left:39.5px;top:calc(693px + var(--hx));width:1361px;height:718px;background:#111;overflow:hidden;z-index:2}
 .problem .tex{position:absolute;width:1515.87px;height:852.93px;opacity:.05;pointer-events:none}
 .problem .shade{position:absolute;left:271px;top:125.9px;width:851.8px;height:377.7px;background:#111;filter:blur(26.45px)}
 .problem .tile{position:absolute}
@@ -150,7 +156,7 @@ h1,h2{font-family:var(--display);font-weight:400}
 .problem p{margin-top:20px;font:400 16px/24px Geist,sans-serif;letter-spacing:-.32px;color:var(--mute);width:446.37px}
 
 /* ---------- solution ---------- */
-.solution{position:absolute;left:-3px;top:1419px;width:1446px;height:801px;background:#111 url(cypen-assets/solution-paper.jpg) 0 0/100% 100%;overflow:hidden;z-index:1}
+.solution{position:absolute;left:-3px;top:calc(1419px + var(--hx));width:1446px;height:801px;background:#111 url(cypen-assets/solution-paper.jpg) 0 0/100% 100%;overflow:hidden;z-index:1}
 .sol-head{position:absolute;left:43px;top:65px;width:1245px;display:flex;justify-content:space-between;align-items:flex-end}
 .sol-head .label{margin-bottom:38px}
 .sol-head h2{font-size:52px;line-height:1.11;letter-spacing:-1.56px;width:575.77px;color:#fff}
@@ -160,14 +166,22 @@ h1,h2{font-family:var(--display);font-weight:400}
 .js .ui>.drift{animation:drift var(--dur,13s) ease-in-out var(--dl,0s) infinite alternate}
 @keyframes drift{0%{translate:0 0}33%{translate:calc(var(--ax,4)*1px) calc(var(--ay,-3)*1px)}66%{translate:calc(var(--ax,4)*-.6px) calc(var(--ay,-3)*.8px)}100%{translate:calc(var(--ax,4)*.3px) calc(var(--ay,-3)*-1px)}}
 .ui .frame{left:298.79px;top:28.77px;width:663.08px;height:367.19px;border:1.017px solid rgba(217,217,217,.11)}
-.ui .dash{left:306px;top:37.77px;width:648.17px;height:349.98px}
+.ui .dash{left:306px;top:37.77px;width:648.172px;height:349.977px;background:rgba(16,16,15,.2);border:1.017px solid rgba(125,125,121,.2);overflow:hidden}
+/* dashboard window: Figma 556:2803, layer by layer. It is mostly see-through, so the paper and code show through it. */
+.dash *{position:absolute}
+.dash .pn{left:141.82px;top:66.83px;width:485.683px;height:260.697px;overflow:hidden}
+.dash .act{left:0;top:0;width:148.205px;height:57.139px;border:.893px dashed #292929;background:linear-gradient(rgba(27,27,27,.2),rgba(25,25,25,.2));overflow:hidden}
+.dash .act i{opacity:.3}
+.dash .chart{left:0;top:75px;width:330.336px;height:182.131px;opacity:.6;border:.893px solid #292929;background:linear-gradient(rgba(27,27,27,.4),rgba(25,25,25,.4));overflow:hidden}
+.dash .chart i{top:154.46px;height:8.928px;background:#252525}
+.dash .chart b{left:13.4px;top:9.82px;font:400 13.205px/normal var(--mono);color:#deded8;white-space:nowrap}
 .ui .navsel{left:261.23px;top:99.83px;width:94.64px;height:32.14px}
 .ui .aud{left:896.48px;top:237.69px;width:113.71px;height:153.58px}
 .code{font:400 16.257px/1.168 var(--code);white-space:pre;pointer-events:none;color:transparent;-webkit-background-clip:text;background-clip:text}
-.ui .code{opacity:.4;background-image:linear-gradient(var(--ga,238.4deg),#151c15 31.5%,#386d33 58.2%,#040404 86.4%);filter:drop-shadow(0 0 4px rgba(205,172,239,.35))}
+.ui .code{opacity:.4;background-image:radial-gradient(farthest-corner,rgba(0,0,0,0) 20%,rgba(0,0,0,.03) 40%,rgba(0,0,0,.11) 60%,rgba(0,0,0,.26) 80%,rgba(0,0,0,.5)),linear-gradient(var(--ga,238.4deg),#151c15 31.5%,#386d33 58.2%,#040404 86.4%)}
 
 /* ---------- CTA + footer ---------- */
-.cta{position:absolute;left:0;top:2216px;width:1440px;height:788px;background:#020202;overflow:hidden;z-index:4}
+.cta{position:absolute;left:0;top:calc(2216px + var(--hx));width:1440px;height:788px;background:#020202;overflow:hidden;z-index:4}
 .cta .plus{position:absolute;width:15.72px;height:15.72px}
 .cta .code{position:absolute;left:3px;top:329px;font-size:14.23px;opacity:.7;background-image:linear-gradient(239deg,#ad78d7 31.5%,#040404 86.4%);filter:drop-shadow(0 0 4px rgba(205,172,239,.35))}
 .panel{position:absolute;left:40px;top:85px;width:1244px;height:703px;background:#292929 url(cypen-assets/cta-paper.jpg) 0 0/100% 100%;overflow:hidden}
@@ -177,12 +191,12 @@ h1,h2{font-family:var(--display);font-weight:400}
 .panel .row{position:absolute;left:28px;top:364px;width:1102px;display:flex;justify-content:space-between;align-items:center}
 .panel .row p{font:400 14px/1.2 'PP Mori',Geist,sans-serif;letter-spacing:-.28px;color:var(--mute)}
 .social{display:flex;gap:12px}.social a{display:block;width:24px;height:24px;opacity:.85;transition:opacity .2s}.social a:hover{opacity:1}.social img{width:24px;height:24px}
-.cta .pat,.cta canvas{position:absolute;left:0;top:0;width:1440px;height:788px;pointer-events:none}
+.cta .pat{position:absolute;left:0;top:0;width:1440px;height:788px;pointer-events:none}
 .cta .pat-l{position:absolute;left:0;top:378px;width:419px;height:410px;pointer-events:none}
-.js .cta .pat.anim{visibility:hidden}
 
 /* ---------- tablet + phone: stacked flow layout (below 1180px the 1440 stage would shrink type too far) ---------- */
 @media(max-width:1179px){
+ .js .pop[data-dir]{--fx:0px;--fy:24px} /* stacked layout: cards rise straight up */
  .page{width:auto;height:auto;zoom:1;padding-top:64px}
  .nav{width:auto;height:64px;padding:0 32px;zoom:1}
  [id]{scroll-margin-top:64px}
@@ -191,7 +205,7 @@ h1,h2{font-family:var(--display);font-weight:400}
  .hero-copy h1{font-size:clamp(40px,8vw,72px);letter-spacing:-.02em;width:auto;max-width:680px}
  .hero-copy .sub{width:auto;max-width:560px;font-size:17px;line-height:26px}
  .hero-copy .r{width:auto;max-width:554px;margin-bottom:56px}
- .hero{position:relative;left:auto;top:auto;width:100%;height:auto;aspect-ratio:1441/470}
+ .hero{position:relative;left:auto;top:auto;width:100%;height:var(--hh,auto);aspect-ratio:1441/470}
  .hero img{top:auto;bottom:0;left:50%;width:150%;height:auto;translate:-50% 0}
  /* problem */
  .problem{position:relative;left:auto;top:auto;width:auto;height:auto;padding:104px 32px 96px;margin-top:-1px}
@@ -294,7 +308,7 @@ h1,h2{font-family:var(--display);font-weight:400}
  <div class="slot" data-slot="ex-a" style="left:42.5px;top:105.95px;width:219.46px;height:106.15px"></div>
  <div class="slot" data-slot="ph-a" style="left:1107.79px;top:197.63px;width:223.21px;height:106.75px"></div>
 
- <div class="threat pop" data-at=".38" style="left:624px;top:508px">
+ <div class="threat pop" data-dir="b" data-at=".38" style="left:624px;top:508px">
   <div class="hd"><img src="cypen-assets/threat.svg" alt="">Threat</div><div class="dv"></div>
   <ul><li><img src="cypen-assets/x-red.svg" alt="">Patch failed</li><li><img src="cypen-assets/x-red.svg" alt="">Retested</li><li><img src="cypen-assets/x-red.svg" alt="">Risk found</li></ul>
  </div>
@@ -317,7 +331,27 @@ h1,h2{font-family:var(--display);font-weight:400}
   <svg class="drift" style="left:858.47px;top:398.96px;--d:12;--dur:12s;--ax:-4;--ay:3;--dl:-2s" width="27.76" height="5.41" viewBox="0 0 31.17 6.08"><circle cx="3.04" cy="3.04" r="3.04" fill="#1b1b1b"/><circle cx="11.4" cy="3.04" r="3.04" fill="#1b1b1b"/><circle cx="19.77" cy="3.04" r="2.47" fill="none" stroke="#1b1b1b" stroke-width="1.14"/><circle cx="28.13" cy="3.04" r="2.47" fill="none" stroke="#1b1b1b" stroke-width="1.14"/></svg>
   <svg class="drift" style="left:289.71px;top:158.84px;--d:12;--dur:13s;--ax:3;--ay:4;--dl:-5s" width="5.41" height="27.76" viewBox="0 0 6.08 31.17"><circle cx="3.04" cy="3.04" r="3.04" fill="#1b1b1b"/><circle cx="3.04" cy="11.4" r="3.04" fill="#1b1b1b"/><circle cx="3.04" cy="19.77" r="2.47" fill="none" stroke="#1b1b1b" stroke-width="1.14"/><circle cx="3.04" cy="28.13" r="2.47" fill="none" stroke="#1b1b1b" stroke-width="1.14"/></svg>
   <svg class="drift" style="left:225.63px;top:283.99px;--d:12;--dur:14s;--ax:-3;--ay:-3;--dl:-6s" width="27.76" height="5.41" viewBox="0 0 31.17 6.08"><circle cx="28.13" cy="3.04" r="3.04" fill="#1b1b1b"/><circle cx="19.77" cy="3.04" r="2.47" fill="none" stroke="#1b1b1b" stroke-width="1.14"/><circle cx="11.4" cy="3.04" r="2.47" fill="none" stroke="#1b1b1b" stroke-width="1.14"/><circle cx="3.04" cy="3.04" r="2.47" fill="none" stroke="#1b1b1b" stroke-width="1.14"/></svg>
-  <img class="dash drift" src="cypen-assets/dashboard.png" alt="" style="--d:5;--dur:19s;--ax:-3;--ay:-2">
+  <div class="dash drift" style="--d:5;--dur:19s;--ax:-3;--ay:-2">
+   <img src="cypen-assets/dash/window-controls.svg" alt="" style="left:-1.02px;top:-1.02px;width:648.172px;height:41.069px">
+   <img src="cypen-assets/dash/sidebar.svg" alt="" style="left:-1.02px;top:40.05px;width:126.777px;height:308.908px">
+   <div class="pn">
+    <div class="act">
+     <i style="left:16.97px;top:29.48px;width:7.142px;height:12.499px;background:#6a6a6a"></i>
+     <i style="left:27.69px;top:22.33px;width:7.142px;height:19.642px;background:#636363"></i>
+     <i style="left:38.39px;top:15.19px;width:7.142px;height:26.784px;background:#5c5c5c"></i>
+     <i style="left:59.83px;top:15.19px;width:53.568px;height:8.928px;background:linear-gradient(to left,#1a1a1a,#4e4c4c)"></i>
+     <i style="left:59.83px;top:33.04px;width:37.498px;height:7.142px;background:#272727"></i>
+    </div>
+    <img src="cypen-assets/dash/audience-summary.svg" alt="" style="left:166.08px;top:0;width:149.99px;height:57.139px">
+    <div class="chart">
+     <img src="cypen-assets/dash/chart-area.svg" alt="" style="left:13.4px;top:52.62px;width:302.885px;height:85.771px">
+     <img src="cypen-assets/dash/chart-curve.svg" alt="" style="left:12.43px;top:51.64px;width:304.848px;height:53.809px">
+     <i style="left:15.19px;width:103.565px"></i><i style="left:158.03px;width:137.491px"></i>
+     <b>/api/users</b>
+    </div>
+    <img src="cypen-assets/dash/growth-summary.svg" alt="" style="left:327.22px;top:1.34px;width:151.776px;height:57.139px">
+   </div>
+  </div>
   <img class="navsel drift" src="cypen-assets/nav-selected.png" alt="" style="--d:14;--dur:10s;--ax:-6;--ay:3;--dl:-4s">
   <img class="aud drift" src="cypen-assets/audience.svg" alt="" style="--d:16;--dur:12s;--ax:6;--ay:-4;--dl:-1s">
   <div class="slot drift" data-slot="ex-b" style="left:64.86px;top:170.04px;width:187.33px;height:107.98px;--d:18;--dur:11s;--ax:-5;--ay:5;--dl:-2s"></div>
@@ -327,13 +361,13 @@ h1,h2{font-family:var(--display);font-weight:400}
 
 <!-- alerts that pop up in Problem and travel down into Solution (gain a severity row on arrival) -->
 <div class="travel" aria-hidden="true">
- <div class="alert pop" data-at=".14" data-from="ex-a" data-to="ex-b" data-arc="-1">
+ <div class="alert pop" data-dir="l" data-at=".14" data-from="ex-a" data-to="ex-b" data-arc="-1">
   <img class="edge" src="cypen-assets/alert-edge.png" alt="">
   <div class="hd"><img src="cypen-assets/warn.svg" alt="">Data Exfiltration</div>
   <div class="ds">Outbound spike<br>Transfer blocked</div>
   <div class="dv"></div><div class="sv">Severity</div><div class="bd c">Critical</div>
  </div>
- <div class="alert pop" data-at=".3" data-from="ph-a" data-to="ph-b" data-arc="1">
+ <div class="alert pop" data-dir="r" data-at=".3" data-from="ph-a" data-to="ph-b" data-arc="1">
   <img class="edge" src="cypen-assets/alert-edge.png" alt="">
   <div class="hd"><img src="cypen-assets/warn.svg" alt="">Phishing Attempt</div>
   <div class="ds">Spoofed login URL<br>Email quarantined</div>
@@ -364,7 +398,6 @@ h1,h2{font-family:var(--display);font-weight:400}
   </footer>
  </div>
  <img class="pat" src="cypen-assets/cta-pattern.webp" alt="" aria-hidden="true" width="1440" height="788" loading="lazy">
- <canvas aria-hidden="true"></canvas>
 </section>
 
 </div>
@@ -380,14 +413,22 @@ let Z=1;
 function fit(){
  const w=document.documentElement.clientWidth;
  Z=isMob()?1:Math.min(w/1440,1.3334);
- document.documentElement.style.setProperty('--z',Z);
+ const de=document.documentElement.style;
+ de.setProperty('--z',Z);
+ // hero = 100vh. Stage layout: the Problem section (Figma top 693) moves to the bottom edge of the window.
+ const hx=isMob()?0:Math.max(-110,Math.min(600,innerHeight/Z-693));
+ de.setProperty('--hx',hx.toFixed(1)+'px');de.setProperty('--hs',(1+Math.max(hx,0)/721).toFixed(4));
+ // Stacked layout: the pattern under the copy grows to reach the bottom of the window, up to the height of its artwork.
+ const hc=document.querySelector('.hero-copy');
+ if(isMob()&&hc){const ph=w<640,base=w*(ph?560:470)/1441,art=w*(ph?2.4:1.5)*721/1441*.57,left=innerHeight-(hc.getBoundingClientRect().bottom+scrollY);
+  de.setProperty('--hh',Math.max(base,Math.min(left,art)).toFixed(1)+'px')}else de.removeProperty('--hh');
  if(isMob())document.documentElement.style.setProperty('--mz',(w<640?w/830:Math.min(w,1100)/1280).toFixed(4)); // phones: crop in on the dashboard
  // stacked layout: the problem alerts sit in a row under the copy; stage layout: back at their Figma spots
  const row=document.querySelector('.mob-row'),prob=document.querySelector('.problem');
  if(row){const items=document.querySelectorAll('.problem [data-slot],.problem .threat');
   row.hidden=!isMob();items.forEach(e=>(isMob()?row:prob).appendChild(e))}
 }
-fit();addEventListener('resize',fit);
+fit();addEventListener('resize',fit);addEventListener('load',fit);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
 const navbar=document.querySelector('.navbar');
 const onScroll=()=>navbar.classList.toggle('scrolled',scrollY>4);onScroll();addEventListener('scroll',onScroll,{passive:true});
 
@@ -430,17 +471,20 @@ document.querySelectorAll('[data-code]').forEach(e=>e.textContent=CODE);
  const prep=h=>{const t=h.innerHTML.replace(/<br\s*\/?>/gi,' ¶ ').replace(/<[^>]+>/g,'').trim().split(/\s+/);
   h.setAttribute('aria-label',t.filter(w=>w!=='¶').join(' '));h.classList.add('sx');let wi=0;
   h.innerHTML=t.map(w=>w==='¶'?'<br>':(()=>{const p=PAL[wi++%4];return `<span class="w" aria-hidden="true" style="--c1:${p[0]};--c2:${p[1]}">${[...w].map(c=>`<span class="ch" data-c="${c}">${c}</span>`).join('')}</span>`})()).join(' ')};
- const play=(h,wordStep,delay)=>fontsReady.then(()=>{
+ const play=(h,wordStep,delay,perLine)=>fontsReady.then(()=>{
   const fs=parseFloat(getComputedStyle(h).fontSize);
   h.querySelectorAll('.ch').forEach(c=>c.style.width=(c.getBoundingClientRect().width/Z/fs).toFixed(4)+'em');
   h.classList.add('go');
-  h.querySelectorAll('.w').forEach((w,wi)=>[...w.children].forEach((c,j)=>setTimeout(()=>{
+  // perLine: restart the word count on each visual line, so every line scrambles at the same time
+  const ws=[...h.querySelectorAll('.w')],idx=[];let top=null,n=0;
+  ws.forEach(w=>{const t=w.offsetTop;if(perLine&&top!==null&&t>top+2)n=0;top=t;idx.push(n++)});
+  ws.forEach((w,k)=>{const wi=idx[k];[...w.children].forEach((c,j)=>setTimeout(()=>{
    c.textContent=pick();c.classList.add('hot');const id=setInterval(()=>c.textContent=pick(),60);
    setTimeout(()=>{clearInterval(id);c.textContent=c.dataset.c;c.classList.replace('hot','warm');
     setTimeout(()=>c.classList.replace('warm','done'),Math.random()<.3?450+Math.random()*550:110+Math.random()*170)},380+Math.random()*140);
-  },delay+wi*wordStep+j*28)));
+  },delay+wi*wordStep+j*28))});
  });
- const h1=document.querySelector('.hero-copy h1');prep(h1);play(h1,240,250);
+ const h1=document.querySelector('.hero-copy h1');prep(h1);play(h1,240,250,true);
  const hs=[...document.querySelectorAll('.problem h2,.sol-head h2,.panel h2')];hs.forEach(prep);
  const hio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){hio.unobserve(e.target);play(e.target,110,100)}}),{threshold:.6});
  hs.forEach(h=>hio.observe(h));
@@ -507,15 +551,71 @@ document.querySelectorAll('[data-waitlist]').forEach(f=>{
  const pr=()=>page.getBoundingClientRect();
  const pos=(el,P)=>{const r=el.getBoundingClientRect();return{x:(r.left-P.left)/Z,y:(r.top-P.top)/Z,w:r.width/Z}};
  let first=true;
- // 1. problem: alerts fade up one after another, once, when the section comes into view
- pops.sort((a,b)=>a.dataset.at-b.dataset.at).forEach((e,i)=>e.style.setProperty('--pd',(i*.22).toFixed(2)+'s'));
- if(REDUCE)pops.forEach(e=>e.classList.add('in'));
- else{const pio=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){pops.forEach(e=>e.classList.add('in'));pio.disconnect()}},{threshold:.3});pio.observe(prob)}
+ // 1. problem cards.
+ //    Desktop: scrolljacked. When the section reaches the top of the window the page is held there; scrolling then
+ //    brings the three cards in one at a time (left, right, bottom). After the third, the page scrolls on. Plays once.
+ //    Stacked layout (tablet/phone): no hold; each card appears as its own spot scrolls into view.
+ const byAt=(a,b)=>a.dataset.at-b.dataset.at;
+ const cards=pops.filter(e=>e.dataset.dir).sort(byAt),icons=pops.filter(e=>!e.dataset.dir).sort(byAt);
+ let step=0,done=false,locked=false,acc=0,last=0,idle=0,lastY=scrollY,touchY=0;
+ const show=(el,d=0)=>{el.style.setProperty('--pd',d+'s');el.classList.add('in')};
+ const finish=()=>{pops.forEach(e=>show(e));step=cards.length;done=true;locked=false;clearTimeout(idle)};
+ if(REDUCE)finish();
+ // scroll position where the section sits under the nav (nudged down a little on short windows so the bottom card is in view)
+ const pinY=()=>Math.round(scrollY+prob.getBoundingClientRect().top-61*Z+Math.max(0,Math.min(718-(innerHeight/Z-61),70))*Z);
+ const hold=()=>scrollTo({top:pinY(),behavior:'instant'});
+ const advance=()=>{
+  if(step>=cards.length)return;
+  show(cards[step]);if(icons[step])show(icons[step],.25);
+  step++;acc=0;last=performance.now();clearTimeout(idle);
+  if(step>=cards.length){icons.slice(step).forEach((e,i)=>show(e,.35+i*.15));setTimeout(()=>{done=true;locked=false},750)}
+  else idle=setTimeout(advance,1600); // nobody gets stuck: with no scroll input the next card comes by itself
+ };
+ const lock=()=>{if(locked||done||isMob())return;locked=true;acc=0;last=performance.now()-200;hold();clearTimeout(idle);idle=setTimeout(advance,1600)};
+ const release=()=>{locked=false;clearTimeout(idle)};
+ // scroll input while the page is held: down brings the next card, up lets go
+ const push=d=>{
+  if(step>=cards.length)return;
+  if(d<0){acc=Math.min(acc,0)+d;if(acc<-40)release();return}
+  acc=Math.max(acc,0)+d;
+  if(acc>=50&&performance.now()-last>=450)advance();
+ };
+ addEventListener('wheel',e=>{
+  if(done||isMob())return;
+  const d=e.deltaMode?e.deltaY*40:e.deltaY;
+  if(locked){e.preventDefault();push(d);return}
+  const y=pinY();if(d>0&&scrollY<y&&scrollY+d>=y){e.preventDefault();lock()}
+ },{passive:false});
+ addEventListener('touchstart',e=>{touchY=e.touches[0].clientY},{passive:true});
+ addEventListener('touchmove',e=>{if(!locked)return;if(e.cancelable)e.preventDefault();const y=e.touches[0].clientY;push((touchY-y)*1.5);touchY=y},{passive:false});
+ addEventListener('keydown',e=>{
+  if(!locked)return;
+  if([' ','PageDown','ArrowDown','End'].includes(e.key)){e.preventDefault();if(performance.now()-last>=300)advance()}
+  else if(['PageUp','ArrowUp','Home'].includes(e.key)&&step<cards.length)release();
+ });
+ addEventListener('scroll',()=>{
+  const y=scrollY;
+  if(locked){if(Math.abs(y-pinY())>1)hold()}
+  else if(!done&&!isMob()&&y>lastY){const p=pinY();
+   if(y>p+innerHeight*.6)finish();   // landed far below (reload, restored scroll): just show them
+   else if(y>=p)lock();              // scrolled onto the section (scrollbar, keys, touch): catch and hold
+  }
+  lastY=scrollY;
+ },{passive:true});
+ // nav links that jump past the section skip the hold
+ document.querySelectorAll('a[href^="#"]').forEach(l=>l.addEventListener('click',()=>{if(!done&&!['#top','#problem'].includes(l.getAttribute('href')))finish()}));
+ const reveal=vh=>{
+  if(done||!isMob()||scrollY<8)return;
+  const hit=pops.filter(el=>{if(el.classList.contains('in'))return false;const b=(el.dataset.from?slot(el.dataset.from):el).getBoundingClientRect();return b.top+b.height/2<vh*.8}).sort(byAt);
+  hit.forEach((el,i)=>show(el,i*.16));
+ };
  function frame(){
   const vh=innerHeight,P=pr(),r=prob.getBoundingClientRect();
+  reveal(vh);
   // 2. alerts travel from their Problem slot to their Solution slot
   const s=sol.getBoundingClientRect();
   let target=isMob()?0:clamp(((vh*.5)-(r.top+r.height*.42))/((s.top+s.height*.6)-(r.top+r.height*.42)));
+  if(!done&&!isMob())target=0; // the alerts stay in their Problem slots until the card sequence has played
   if(REDUCE)target=target>.5?1:0; // no travel animation: alerts just sit in whichever section is in view
   movers.forEach(m=>{
    m.t+=first||REDUCE?(target-m.t):(target-m.t)*.09;
@@ -535,38 +635,6 @@ document.querySelectorAll('[data-waitlist]').forEach(f=>{
   first=false;requestAnimationFrame(frame);
  }
  requestAnimationFrame(frame);
-})();
-
-const MAPS={"cta":{"c":8,"cols":180,"rows":99,"t":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAXEQ8MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIBsXEQwHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMComIhwYExANAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPDg0MC0mIh8aFhMQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASURAPDY0MCsnIR8bGBIQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUk1ISEQ/OjQxLSklIBwYFRENAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABVT0tHQ0A8NzItKScjHhoUEQ8JAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYFpWUUxHQT05NTEsKCMfGxcTDgoKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABmYF1XUExHRUA7NTEtKSMfGRURDQgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGtmYl1ZU1BMRkA6NjItKSYgGxcSDgAKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB0cGpkYFxXU05KRkE9OjUwKyYgHBgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABzcGtmYVxYVVJOR0Q/OjUwLCgkIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHp2cmxoZF9bV1RQS0VBPTcyLysnJioAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgX13dXBrZ2NdWlVPS0dDPTg1MC0qKi4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAg357dXJuamZiXVdSTEdCPzs2NTMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIB8d3NuamZiXFZRS0hDPzs8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIJ+eXRuaWVfXFhSTktGQgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIJ/eXRva2djXllVUUxJRwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIF9eXVwa2djXVhVUE5PTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIN/eXVwa2diXFhTUEtLSgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIJ9dnJua2ZiW1ZSTEdFRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAdnBrZ2NfWVZQS0dBPwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG9pZmFdWVRPS0ZCOwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA1tUAAAAAAAAAAABoY15bV1RPSUVBOzYyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANjU0tAAAAAAAAAAAABmYVxYVE9LSUQ/OzYxKycjHxsWEhISAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA1tPQzszMygAAAAAAAAAAYmBaVU9JRUA8ODMuKiUgHBgSDgwNAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA08/MysjIxsQAAAAAAAAAAF1ZU09NR0M9ODMvKiQfGRMQDAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM3JxcPCwcC+AAAAAAAAAABXUk5JRUE8OTIvKiUgGhURDAgCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADIxL+9vby5uAAAAAAAAAAAU05NR0I9NzMuKiUhGxYRDAgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAv726t7e0srMAAAAAAAAAAABMSEM9ODQxKiYgHBcSDQ0LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAvLi1s7Oyrq0AAAAAAAAAAABNSUQAOTUvKychHBoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALSyr66tqqmqAAAAAAAAAABRTUoAOTUxLCYiHhwXAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACtq6qppaWkAAAAAAAAAABVUk0AOjQvKyYgHBgVEgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACqqKakoaCgAAAAAAAAAABWUk0AOTQxACUgGxYSDwwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKilo6GgnJubAAAAAAAAAABWUEoAOjk3ACUgGhYQDAgFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8OwAAAAAAAAAAAAAAAAAAKaioJ2bmJWVAAAAAAAAAAAAAAAAPj4AACQfGxURDAUBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADx7erlAAAAAAAAAAAAALGvqqSgnJiXk5GQjwAAAAAAAAAAAAAAAAAAACQfGRQQDAcFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPPv6ubh3NkAAAAAAAAAtbGsqKOfmpSTj46KiooAAAAAAAAAAAAAAAAAAAAgHBYUDgkFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPLt6eTf2tfUAAAAAAAAsa2qpqKdmZSOjIiGhIUAAAAAAAAAAAAAAAAAAAAgGhYSDAkEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8+/r5+Te2tbRzMjCvbiyr6uopKCbl5OMiISAfn59AAAAAAAAAAAAAAAAAAAfGxYQDQYCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8u7p5eHc2dXQysfBvbezramloJ6alZCMiIJ9eXh3eAAAAAAAAAAAAAAAAAAAGxcTDQgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8ezo5N/c2NTPysXBvLezrqijnpqWko2KhIF7dnRycwAAAAAAAAAAAAAAAAAAABkUEAoEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8+7p5eDd2NPNycTAu7Wxraikn5mVkY2IhH56dHBubQAAAAAAAAAAAAAAAAAAABoYEQwIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADo4t7Z1dPNx8K9ubSwrKagnJiUkIqGgXx3dG5paQAAAAAAAAAAADIsKwAAHhsVEQ0MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADp497Z1NDNx8PAu7axraejnpqWkI2HgXx2cm5nYwAAAAAAAEA6NjArJyMfGhgUDgoHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADl4dzZ1M7KxcG8ubazraehnpqVkIyGgX14c25qZF5YVE9KRUA6NjErJiEdGBQRDAgDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD18uvm4d7Z087Jw7+6t7Kuq6Wfm5iTjomFf3x4cm5qZF5aVE9LRUA9ODItJyMeGhYTDQgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPr07unk39rX083Jxb+5trCsqKSgm5WRjIiDf3l1cm1oY19bVk9LRkQ+ODMuKiUgHRkWEAwOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPr18Ork4dzW0s7IxL+9ubOuqqSfmpaSjYmCgHx1cGtnY19ZVE5KRUE9OTUxLCgkIBsVERISAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPfz8Orl4dzZ1M/KxsS/uQAAqqagAJmUjomDfXl1cW1oZV9aVlFNSUQ/OzcyLiklHxoYFhQRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPn18u3o493Y08/Ny8YAAAAAAAAAAAAAAACDf3t3cm9qZWBcWFRQSkVCPjg0LiolIR0YEw8NAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPv38uzo497b1tTSz80AAAAAAAAAAAAAAAAAAH57dnFsaWNeWlROSkhCPjo3MiwnIh4ZFA8IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz38e7p5OLd2djU0wAAAAAAAAAAAAAAAAAAAH98d3NtZ2NdWlVQTUlDPzs2MSwoJSEbFRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP358+/q5+Xi39raAAAAAAAAAAAAAAAAAAAAAAB8eHNta2ZiXVhTT0pEQDw5My4rJyEcFgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/69fPw6+ro4uAAAAAAAAAAAAAAAAAAAAAAAAB+enVwAAAAAABTTklEQDw4My4qJiIeGwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD9+fb08QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT0tGQ0A8NzItKCUiHwAA","on":1429}};
-
-/* ---------- CTA: the swarm grows in from the right ---------- */
-(()=>{
- const cta=document.querySelector('.cta'),img=cta.querySelector('.pat'),cv=cta.querySelector('canvas');
- if(REDUCE||isMob()){cv.remove();return}
- img.classList.add('anim');img.loading='eager';
- const M=MAPS.cta,bin=atob(M.t),T=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)T[i]=bin.charCodeAt(i);
- const idx=[];T.forEach((v,i)=>v&&idx.push(i));idx.sort((a,b)=>T[a]-T[b]);
- const base=cv.getContext('2d'),front=document.createElement('canvas'),fx=front.getContext('2d');
- front.style.cssText='position:absolute;left:0;top:0;width:1440px;height:788px;pointer-events:none;filter:drop-shadow(0 0 4px rgba(240,163,90,.7))';cta.appendChild(front);
- let k=1,done=false,started=false,ptr=0;
- const DUR=3400,FL=.07;
- function size(){const dpr=Math.min(devicePixelRatio||1,2),w=Math.round(1440*Z*dpr),h=Math.round(788*Z*dpr);
-  for(const c of[cv,front]){c.width=w;c.height=h}k=w/1440;ptr=0;base.setTransform(k,0,0,k,0,0);fx.setTransform(k,0,0,k,0,0)}
- const put=(g,i,a,col)=>{const c=i%M.cols,r=(i/M.cols)|0,C=M.c,s=img.naturalWidth/1440;
-  g.globalCompositeOperation='source-over';g.globalAlpha=a;g.drawImage(img,c*C*s,r*C*s,C*s,C*s,c*C,r*C,C,C);
-  if(col){g.globalCompositeOperation='source-atop';g.globalAlpha=1;g.fillStyle=col;g.fillRect(c*C,r*C,C,C)}};
- let t0=0;
- function loop(now){
-  const t=Math.min(1.08,(now-t0)/DUR);
-  // settle every cell whose time has passed onto the base layer
-  while(ptr<idx.length&&(T[idx[ptr]]-1)/254*.92+FL<=t){put(base,idx[ptr],1);ptr++}
-  fx.clearRect(0,0,1440,788);
-  for(let j=ptr;j<idx.length;j++){const ct=(T[idx[j]]-1)/254*.92;if(ct>t)break;const age=(t-ct)/FL;put(fx,idx[j],.35+age*.65,age<.5?'#f6d2ff':'#f0a35a')}
-  if(t<1.08)requestAnimationFrame(loop);else{img.classList.remove('anim');cv.remove();front.remove();done=true}
- }
- const go=()=>{size();addEventListener('resize',()=>{if(!done&&started){size()}});
-  const io=new IntersectionObserver(es=>{if(es[0].isIntersecting&&!started){started=true;io.disconnect();t0=performance.now();requestAnimationFrame(loop)}},{threshold:.3});io.observe(cta)};
- img.complete&&img.naturalWidth?go():img.addEventListener('load',go,{once:true});
 })();
 </script>
 </body></html>

@@ -28,17 +28,19 @@ Upload `index.html` and the whole `cypen-assets/` folder to any static host (Ver
 - **640–1179px (tablet):** a stacked layout.
 - **Under 640px (phone):** the stacked layout with a single-column form and alerts.
 
+The hero always fills the first screen (100vh). On desktop the pattern scales up to cover the taller hero and the sections below move down to match; `fit()` in `index.html` sets this on load and resize.
+
 ## Motion
 
-- **Hero:** the headline scrambles in.
+- **Hero:** the headline scrambles in. The pattern below it is a static image.
 - **Section labels:** the eyebrow labels crawl in and their text decodes.
-- **Problem:** the alert cards fade up one after another.
+- **Problem:** scrolljacked on desktop. When the section reaches the top of the window the page holds there, and scrolling brings the three cards in one at a time (left, right, bottom). After the third card the page scrolls on. It plays once. On tablet and phone there is no hold; each card appears as it scrolls into view.
 - **Solution:**
   - The Data Exfiltration and Phishing alerts travel down from Problem into Solution as you scroll, and gain a severity row as they land.
   - The dashboard drifts and zooms slowly, with a slight parallax on mouse move.
-- **Footer:** the orange swarm grows in from the right.
+- **Footer:** static. The orange pattern on the right doesn't animate.
 
-The alert travel and the swarm growth are desktop only. Everything is off for visitors with reduced motion turned on.
+The alert travel is desktop only. Everything is off for visitors with reduced motion turned on.
 
 ## Files
 
@@ -46,5 +48,6 @@ The alert travel and the swarm growth are desktop only. Everything is off for vi
 | --- | --- |
 | `index.html` | The page: markup, CSS and JS in one file |
 | `cypen-assets/*.webp, *.png, *.jpg` | Pattern artwork and textures exported from Figma. The paper textures have Figma's linear-burn blend baked in. |
+| `cypen-assets/dash/*.svg` | The Solution dashboard's layers from Figma. The window is built in HTML from these so it stays see-through, as in the design. |
 | `cypen-assets/*.svg` | Icons, logo mark and the Cypen wordmark |
 | `cypen-assets/fonts/` | Design fonts (see the licensing note above) |
